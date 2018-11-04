@@ -22,7 +22,8 @@
                 :data="item"
                 :canedit='true'
                 @deleted="onItemDeleted"
-                @editmodechanged="onEditmodeChanged"></postitem>
+                @editmodechanged="onEditmodeChanged"
+                @alignchanged="onAlignChanged"></postitem>
 
             <span v-if="items.length<max_post_items_count"
                 class="add-item-button" 
@@ -68,6 +69,11 @@ module.exports = {
         }
     },
     methods: {
+        onAlignChanged(index,value){
+            var item=this.items[index]
+            item.align=value
+            this.$set(this.items,index,item)
+        },
         onEditmodeChanged(v){
             this.disable_add=v
         },
@@ -200,11 +206,12 @@ console.dir(responce.body)
 }
 .foto{
     margin-right: 24px;
-    border-radius: 12px;
-    overflow: hidden;
 }
 .foto:last-child{
     margin-right: 0;
+}
+.foto img{
+    border-radius: 12px;
 }
 .center{
     flex-flow: column;

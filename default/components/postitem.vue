@@ -20,9 +20,14 @@
 
             <div :ref="ref"
                 placeholder="Напишите здесь что-нибудь интересное!"
-                :contenteditable="edit_mode">{{ data.text }}</div>
+                :contenteditable="edit_mode"
+                v-html="data.text"></div>
 
             <span v-if="!edit_mode" class="tools">
+
+                <span v-if="data.fotos || is_fileadder_open" class="ok" @click="onAlignChanged('left')" title="Слева"><<</span>
+                <span v-if="data.fotos || is_fileadder_open" class="ok" @click="onAlignChanged('center')" title="По центру">--</span>
+                <span v-if="data.fotos || is_fileadder_open" class="ok" @click="onAlignChanged('right')" title="Справа">>></span>
 
                 <span v-if="show_add_button" class="ok" @click="onFileadderOpen" title="Добавлять фото">+F</span>
                 <span v-if="show_fileadder && foto_count<max_fotos_count" class="cancel" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
@@ -31,6 +36,7 @@
                     <span class="">✏</span>
                 </span>
             </span>
+
             <span v-else class="tools">
                 <span class="ok" @click="onOk" title="Применить изменение текста">✔</span>
                 <span class="cancel" @click="onCancel" title="Отменить изменение текста">✘</span>
@@ -64,6 +70,9 @@ module.exports = {
         }
     },
     methods: {
+        onAlignChanged(value){
+            this.$emit('alignchanged',this.index,value)
+        },
         focus(){
             var el=this.$refs[this.ref]
             el.setAttribute('contenteditable',true)
@@ -197,6 +206,7 @@ div[contenteditable='true']{
     position: absolute;
     top: -10px;
     right: 0;
+    z-index: 3;
 }
 .fotos .tools{
     top: 10px;
