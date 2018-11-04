@@ -1,7 +1,12 @@
 <template>
     <div class="pannel">
+        <flashmessage
+            v-if="message"
+            :parent="this"
+            :message="message"
+            @closed="onFlashMessageClosed"></flashmessage>
         <div class="button"
-            v-if="this.add && !adding_mode"
+            v-if="add && !adding_mode"
             @click="onAddPostClick">Создать публикацию</div>
 
         <adder v-if="adding_mode"
@@ -12,12 +17,13 @@
         <div>
             <div 
                 class="post-box" 
-                v-for="post in this.posts">
+                v-for="post in posts">
                 <flashmessage
                     :key="post.id"
                     v-if="post.message"
                     :parent="post"
-                    :text="post.message"
+                    :message="post.message"
+                    @confirmed="onConfirmPostDel"
                     @closed="onFlashMessageClosed"></flashmessage>
                 <div class="post"
                     :style="getStyle(post)">
@@ -27,19 +33,31 @@
                         <div v-if="add" class="button ico" title="Удалить"
                             @click="onPostDelClick(post)">✘</div>
                     </div>
-                    <span v-if="post.user_name">{{ post.user_name }}</span>
-<!--                     <div 
-                        v-for="item in post.items"
-                        :key="item.id"
-                        v-html="item.text"
-                        :class="item.class"></div> -->
-                    <div v-for="item in post.items">
-                        <img v-for="foto in item.fotos"
-                            v-html="foto.html"
-                            :src="foto.src"
-                            :class="foto.class">
-                        <div v-if="!item.edit_mode" v-html="item.html"></div>
-                        <div v-else>edit</div>
+                    <span v-if="!add">{{ post.user_name }}</span>
+
+                    <div v-for="(item,i_i) in post.items">
+                        <div class="fotos">
+                            <img v-for="foto in item.fotos"
+                                v-html="foto.html"
+                                :src="foto.src"
+                                :class="foto.class">
+                        </div>
+                        <div v-if="!item.edit_mode" class="item">
+                            <span v-html="item.html"></span>
+                            <span class="sub r125" title="Редактировать текст"
+                                @click="onItemEdit(post,item)">✏</span>
+                        </div>
+                        <div v-else class="item">
+                            <inputex
+                                v-model="item.text"
+                                @ok="onItemEditOk(post,item)"
+                                @cancel="onItemEditCancel(post,item)"></inputex>
+<!--                             <input v-model="item.text">
+                            <span class="sub ok" title="Сохранить"
+                                @click="onItemEditOk(post,item)">✔</span>
+                            <span class="sub cancel" title="Отменить"
+                                @click="onItemEditCancel(post,item)">✘</span> -->
+                        </div>
                     </div>
 
                 </div>
@@ -51,6 +69,7 @@
 <script>
 var adder=require('./adder.vue')
 var flashmessage=require('./flashmessage.vue')
+var inputex=require('./inputex.vue')
 module.exports={
     data: function(){
         return {
@@ -69,23 +88,86 @@ module.exports={
         add: Boolean
     },
     methods: {
+        onItemEdit(post,item){
+            item.edit_mode=true
+            this.updatePost(post)
+        },
+        onItemEditOk(post,item){
+            var data=new FormData()
+            data.append('iid',item.id)
+            data.append('text',item.text)
+            this.$http.post(window.location.origin+"/api/edititem",data).then(
+
+                function(responce){
+                    post.message={
+                        style: 'ok',
+                        type: 'info',
+                        text: 'Готово!'
+                    }
+                    item.edit_mode=false
+                    item=this.setItemHtml(item)
+                    this.updatePost(post)
+                },
+
+                function(responce){
+                    post.message={
+                        style: 'danger',
+                        type: 'info',
+                        text: responce.body
+                    }
+                    this.updatePost(post)
+                })
+        },
+        onItemEditCancel(post,item){
+            item.edit_mode=false
+            this.updatePost(post)            
+        },
         onFlashMessageClosed(post){
             post.message=null
+            this.updatePost(post)
         },
-        onPostDelClick(post){
+        delPost(post){
             // Послать запрос на удаление поста и,
             // если Ok - optimistic delete
             var data=new FormData()
             data.append('id',post.id)
             this.$http.post(window.location.origin+"/api/delete",data).then(
+
                 function(responce){
                     var i=this.getPostIndexById(post.id)
                     if(null!==i)this.posts.splice(i,1)
-                },function(responce){
-                    var pi=this.getPostIndexById(post.id)
-                    post.message=responce.body
-                    this.$set(this.posts,pi,post)
+                    this.message={
+                        style: 'ok',
+                        type: 'info',
+                        text: 'Готово!'
+                    }
+                    this.updatePost(post)
+                },
+
+                function(responce){
+                    post.message={
+                        style: 'danger',
+                        type: 'info',
+                        text: responce.body
+                    }
+                    this.updatePost(post)
                 })
+        },
+        onConfirmPostDel(post){
+            // Подтвердить удаление и удалить пост
+            post.message=null
+            this.updatePost(post)
+
+            return  this.delPost(post)
+        },
+        onPostDelClick(post){
+            // Зопросить подтверждение удаления поста
+            post.message={
+                        style: 'danger',
+                        type: 'confirm',
+                        text: 'Удалённую публикацию будет невозможно восстановить. Удалить?'
+                    }
+                    this.updatePost(post)
         },
         getStyle(post){
             var bc=document.mag_start_data.colors[post.bgci]
@@ -99,6 +181,10 @@ module.exports={
         },
         onAddPostClick(){
             this.adding_mode=true
+        },
+        updatePost(post){
+            var pi=this.getPostIndexById(post.id)
+            if(null!==pi)this.$set(this.posts,pi,post)
         },
         sortPosts(){
             // Упорядочить посты
@@ -141,8 +227,7 @@ module.exports={
                     curpage: this.curpage
                 }
             }
-            this.$http.get(window.location.origin+"/api/"+this.type,options).then(function(responce){
-console.dir(responce.body.posts)                
+            this.$http.get(window.location.origin+"/api/"+this.type,options).then(function(responce){                
                     if(responce.body=='Ok')return
                     if (!responce.body.posts){
                         this.posts.splice(0)
@@ -178,50 +263,49 @@ console.dir(responce.body.posts)
                 }
             }
             return posts
+        },
+        setItemHtml(item){
+            if(item.tag){
+                item.o_tag='<'+item.tag+'>'
+                item.c_tag='</'+item.tag+'>'
+                item.html='<'+item.tag+'>'+item.text+'</'+item.tag+'>'
+            }else{
+                item.html=item.text
+            }
+            return item     
         }
     },
-    //     parsePosts(posts){
-    //         for(var i=0;i<posts.length;i++){
-    //             for(var j=0;j<posts[i]['items'].length;j++){                    
-    //                 var item=posts[i]['items'][j]
-    //                 var html=''
-    //                 if(item['fotos'].length!=0){
-    //                     var html='<div class="fotos">'
-    //                     var path=window.location.origin+'/img/fotos/'
-    //                     for(var h=0;h<item['fotos'].length;h++){
-    //                         var foto=item['fotos'][h]
-    //                         var cls=foto['class']
-    //                         html+='<img class="'+cls+'"src="'+path+cls+'/'+foto['name']+'">'
-    //                     }
-    //                     html+='</div>'
-    //                 }
-    //                 html+='<div class="text" title="Редактировать текст">'
-    //                 if(null===item['tag']){
-    //                     html+=item['text']
-    //                 }else{
-    //                     var tag=item['tag']
-    //                     var tag_o='<'+tag+'>'
-    //                     var tag_c='</'+tag+'>'
-    //                     html+=tag_o+item['text']+tag_c
-    //                 }
-    //                 html+='</div>'
-    //                 item['text']=html
-    //             }
-    //         }
-    //         return posts
-    //     }
-    // },
     created(){
         this.refresh()
     },
     components: {
         adder,
-        flashmessage
+        flashmessage,
+        inputex
     }
 }    
 </script>
 
 <style>
+.row{
+    display: flex;
+    justify-content: space-between;
+}
+.ok{
+    color: #0a0;
+    border-color: #0a0;
+}
+.cancel{
+    color: #888;
+    border-color: #888;
+}
+.r125{
+    opacity: 0.5;
+    transform: rotate(155deg);
+    transition: all 0.5s ease;
+}
+
+
 .post *{
     margin: 0;
 }
@@ -232,11 +316,6 @@ console.dir(responce.body.posts)
     border: 2px solid #ddd;
     border-radius: 8px;
     margin-top: 8px;
-    padding: 8px;
-}
-.post .row{
-    display: flex;
-    justify-content: space-between;
 }
 .post .row>*{
     margin-right: 14px;
@@ -247,6 +326,41 @@ console.dir(responce.body.posts)
 .post .remark{
     font-style: italic;
 }
+
+
+.post .item{
+    position: relative;
+    margin: 4px;
+    padding: 2px 6px;
+    border-radius: 12px;
+    cursor: default;
+}
+/*.post .item:last-child{
+    margin-bottom: 0;
+}*/
+/*.post .item .text:hover{
+    background-color: rgba(0,0,0,0.1);
+}*/
+.post .item h1,
+.post .item h2,
+.post .item h3{
+    text-align: center;
+}
+.post .item .sub{
+    display: inline-block;
+    font-size: 24px;
+    color: #04f;
+}
+.post .item .text:hover .sub{
+    display: inline-block;
+    cursor: pointer;
+}
+.post .item .text:hover .r125{
+    opacity: 1;
+    transform: rotate(125deg);
+    transition: all 0.5s ease;
+}
+
 .ico,
 .mini{
     display: inline-block;
@@ -264,9 +378,7 @@ console.dir(responce.body.posts)
 }
 .button{
     display: inline-block;
-    color: #fff;
     font-weight: bold;
-    background-color: #4c2;
     border-radius: 6px;
     padding: 0 6px 2px 6px;
     cursor: pointer;

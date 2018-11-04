@@ -1,19 +1,37 @@
 <template>
-    <div class="file-adder">
-        <div class="descr">
-        <h4>Прикрепить изображение</h4>
-        <span class="flash-text">( картинка формата jpeg не более 4Мб )</span>
-        </div>
+    <div>
         <flash :text="flash" @closed="flash=''"></flash>
-        <input id="fileElem" type="file" accept="image/jpeg" style="display:none" @change.prevent="handleFiles" />
-        <span class="button icon" v-if="this.filedata.length<this.maxfilescount"
-        @click.stop="onAddClick">✚</span>
-        <div class="foto" v-for="(i,index) in filedata"
+
+        <input :id="fileElem" type="file" accept="image/jpeg" style="display:none" @change.prevent="handleFiles" />
+
+        <div v-for="(i,index) in filedata"
+            class="foto"
             :class="{ vertical : !i.ratio }">
+
             <img :src="i.image">
-            <span class="button ico" title="Удалить"
-                @click.stop="onDelete(index)">✘</span>
+
+            <span class="tools">
+                <span class="delete" @click="onDeleteFoto" title="Удалить">✘</span>
+            </span>
+
+<!--             <div class="buttons">
+                <span title="Слева" class="ok" 
+                    :class="{ active : align=='left' }"
+                    @click.stop="align='left'">⇇</span>
+                <span title="В центре" class="ok" 
+                    :class="{ active : align=='center' }"
+                    @click.stop="align='center'">⟺</span>
+                <span title="Справа" class="ok" 
+                    :class="{ active : align=='right' }"
+                    @click.stop="align='right'">⇉</span>
+                <span title="Удалить" class="cancel"
+                    @click.stop="onDeleteFoto(index)">✘</span>
+            </div> -->
+
         </div>
+
+        <div class="foto add-button" v-if="this.canadd" @click.stop="onAddClick" title="Выбрать фото">✚</div>
+
     </div>
 </template>
 
@@ -23,15 +41,17 @@ module.exports = {
     data: function(){
         return{
             flash: '',
-            filedata: []
+            filedata: [],
+            align: 'center'
         }
     },
     props:{        
-            maxfilescount: 0
+            canadd: Boolean
     },
     methods: {
-        onDelete(i){
+        onDeleteFoto(i){
             this.filedata.splice(i,1)
+            this.changesIsOver()
         },
         createImage: function(file){
             var reader = new FileReader()
@@ -45,7 +65,7 @@ module.exports = {
                 vm.flash=''
                 var image=new Image()
                 image.onload= function(){
-                    if(image.width<400 || image.height<400)return
+                    // if(image.width<400 || image.height<400)return
 
                     var r=parseInt(image.width/image.height)
                     vm.filedata.push({
@@ -60,7 +80,7 @@ module.exports = {
             reader.readAsDataURL(file)
         },
         onAddClick: function(){
-            var fileElem=document.getElementById("fileElem")
+            var fileElem=document.getElementById(this.fileElem)
             fileElem.click()
         },
         getFiles(){
@@ -74,23 +94,17 @@ module.exports = {
             var files=e.target.files || e.dataTransfer.files
             if(!files.length)return
             for(var i=0; i<files.length;i++){
-                if(this.filedata.length>=this.maxfilescount
-                    || files[i].type!='image/jpeg')break
-// console.dir(files[i])
+                if(files[i].type!='image/jpeg')break
                 this.createImage(files[i])
             }
         },
         changesIsOver: function(){
-            this.$emit('foto-changed',this.getFiles())
+            this.$emit('changed',this.getFiles(),this.align)
         }
     },
     computed:{
-        ids: function(){
-            var good_ids=[]
-            for(var i=0;i<this.goods.length;i++){
-                good_ids.push(this.goods[i]['id'])
-            }
-            return good_ids
+        fileElem:function(){
+            return 'fileElem'+this.$vnode.key
         }
     },
     components: {
@@ -99,51 +113,18 @@ module.exports = {
 }
 </script>
 <style>
-.file-adder h4{
-    display: inline-block;
-    width: auto;
-    margin-bottom: 8px;
-}
-.file-adder span.button.icon{
-    display: inline-block;
-    border-color: #8cf;
-    /*color: #8cf;*/
-    text-align: center;
-    vertical-align: top;
-    font-size: 30px;
-    padding: 4px 12px;
-    margin-right: 4px;
-}
-.file-adder .foto{
+.foto.add-button{
     position: relative;
-    display: inline-flex;
-    width: auto;
-    max-width: 85px;
-    max-height: 84px;
-    margin: 0 8px 8px 0;
-}
-.file-adder .foto img{
-    max-width: 100%;
-    max-height: 100%;
-    border-radius: 8px;
-}
-.file-adder .foto.vertical img{
-    display: inline-block;
-    width: auto;
-    height: 150px;
-}
-.file-adder .button.ico{
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 4px;
-    font-size: 18px;
-    color: #f40;
-    border-color: #f40;
-    opacity: 1;
-    background-color: rgba(0,0,0,.3);
-}
-.file-adder>.descr{
-    display: block;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: #0a0;
+    border: 2px solid #0a0;
+    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    margin-left: 8px;
+    cursor: pointer;
 }
 </style>

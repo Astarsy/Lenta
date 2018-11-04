@@ -1,65 +1,86 @@
 <template>
-    <div class="adder" :class="{ danger:danger }">
-        <div class="adder-head">
+    <div class="adder">
+        <div class="head">
             <h3>Создать публикацию</h3>
-            <fileadder @foto-changed="onFotosChanged" 
-                :maxfilescount="max_files_count"></fileadder>
             <colorpeeker :curColor="backcolor" @color-choice="onColorChoice"></colorpeeker>
         </div>
-        <textarea v-model="message"
-            :style="{ 'background-color' : bgColor }"
-            :placeholder="placeholder"></textarea>
-        <div class="counter">{{ counter }}</div>
-        <div class="buttuns">
+
+        <div class="post"
+            :style="{ 'background-color' : bgColor }">
+
+            <div class="post-title">
+                <span>Новая публикация</span>
+                <span>11:11 11.11.18</span>
+            </div>
+
+            <postitem v-for="(item,k) in items"
+                class="item"
+                :key="k"
+                :index="k"
+                :itemscount="items.length"
+                :class="item.align"
+                :data="item"
+                :canedit='true'
+                @deleted="onItemDeleted"
+                @editmodechanged="onEditmodeChanged"></postitem>
+
+            <span v-if="items.length<max_post_items_count"
+                class="add-item-button" 
+                :class="{ disabled : disable_add }"
+                @click="onAddItem" 
+                title="Добавить абзац">✚</span>
+        </div>
+
+        <div class="buttons">
             <span class="button send"
-                :class="{ disabled : message.length==0 }"
-                @click.prevent="onSendClick">Отправить</span>
+                @click.prevent="onSendClick">Создать</span>
             <span class="button cancel"
                 @click.stop="onCloseClick">Отменить</span>
         </div>
+
     </div>
 </template>
 
 <script>
-var fileadder=require('./file_adder.vue')
 var colorpeeker=require('./colorpeeker.vue')
+var postitem=require('./postitem.vue')
 module.exports = {
     data: function(){
-        return{            
-            max_files_count: 1,
-            files:[],
-            message: this.text,
+        return{         
+            text1: '',
+            text2: '',
+            max_items_count: 3,
+            items: [
+                { align: 'center',tag: 'h2', text: 'Заголовок публикации' },
+                { align: 'center',tag: 'text',text: 'Очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации...',fotos: [{class:'mini',name:'f1.jpg'},]}
+            ],
             bgColorIndex: 0,
-            bgColor: this.backcolor,
+            bgColor: '#fff',
             maxLength: 200,
-            danger: false
+            foto_align: null,
+            disable_add: false
         }
     },
     props:{
-        id:{
-            type: String,
-            default: null
-        },
-        text:{
-            type: String,
-            default: ''
-        },
-        backcolor:{
-            type: String,
-            default: '#fff'
-        },
         method:{
             type: String,
             required: true
         }
     },
     methods: {
+        onEditmodeChanged(v){
+            this.disable_add=v
+        },
+        onAddItem(){
+            if(this.disable_add)return
+            this.items.splice(this.items.length,0,{align:'center',tag:'text',text:''})
+        },
+        onItemDeleted(key){
+            this.items.splice(key,1)
+        },
         onColorChoice(i,c){
             this.bgColorIndex=i
             this.bgColor=c
-        },
-        onFotosChanged(files){
-            this.files=files
         },
         postMessage(text){
             this.message=this.message.trim().substr(0,this.maxLength)
@@ -102,57 +123,117 @@ console.dir(responce.body)
         }
     },
     computed:{
+        max_post_items_count: function(){
+            return document.mag_start_data.max_post_items_count
+        },
         placeholder: function (){
             return "Напишите сообщение (не более "+ this.maxLength +" знаков)"
         },
         counter: function (){
             var r=this.maxLength-this.message.length
-            if(r<5)this.danger=true
-            else this.danger=false
             if(r<0)r='Сообщение слишком длинное! Последние '+(-r)+' знаков будут потеряны!'
             return r
         }
     },
     components: {
-        fileadder,
-        colorpeeker
+        colorpeeker,
+        postitem
     }
 }
 </script>
 <style>
+.add-item-button{
+    display: inline-flex;
+    width: 30px;
+    justify-content: center;
+    align-self: center;
+    font-size: 24px;
+    color: #0a0;
+    cursor: pointer;
+}
+.add-item-button.disabled{
+    color: #aaa;
+    cursor: default;
+}
+
 .adder{
+    display: flex;
+    flex-flow: column;
     border: 2px solid #ddd;
-    border-radius: 8px;
-    padding: 8px;
-    padding-bottom: 0;
-    margin: 0 10px 8px 10px;
-    background-color: #fff;
+    border-right: none;
+    border-left: none;
+    border-radius: 12px;
 }
-.buttuns{
-    padding: 8px 0;
+.adder .head{
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0 0 0;
 }
-.adder-head>h3{
+.adder .head *{
     margin: 0;
+    color: #555;
 }
-.adder textarea{
-    vertical-align: bottom;
-    display: inline-block;
-    width: 100%;
-    margin-bottom: 8px;
-    height: 4em; 
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    resize: none;
-    outline: none;
+
+.post{
+    display: flex;
+    flex-flow: column;
+    border-right: none;
+    border-left: none;
+    border-radius: 12px;
 }
-.danger{
-    color: #f33;
+.post *{
+    display: flex;
 }
-.counter{
-    float: right;
-    margin-bottom: 8px;
+.post-title{
+    margin: 2px 8px;
 }
-.counter.danger{
-    color: red;
+.post-title>span{
+    margin-left: 20px;
 }
+.post-title>span:first-child{
+    margin-left: 0;
+    font-style: italic;
+}
+
+.fotos{
+    justify-content: center;
+}
+.foto{
+    margin-right: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.foto:last-child{
+    margin-right: 0;
+}
+.center{
+    flex-flow: column;
+}
+.center .fotos{
+    /*justify-content: space-around;*/
+}
+.left{
+}
+.right{
+    flex-direction: row-reverse;
+}
+.h2{
+    font-size: 24px;
+    font-weight: bold;
+}
+.center .h2{
+    justify-content: center;
+}
+.left .h2{
+    justify-content: flex-start;
+}
+.right .h2{
+    justify-content: flex-end;
+}
+
+.ico{
+    width: 84px;
+    height: 84px;
+}
+
 </style>

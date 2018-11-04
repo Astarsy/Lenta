@@ -42,16 +42,14 @@ module.exports = {
 }
 </script>
 <style>
-.colorpeeker{
-    display: inline-block;
-}
 .colorpeeker .cpcolor{
-    display: inline-block;
+    display: inline-flex;
     border:1px solid #ccc;
     border-radius: 3px;
-    width: 16px;
-    height: 16px;
-    margin-left: 3px;
+    width: 22px;
+    height: 22px;
+    margin-left: 2px;
+    cursor: pointer;
 }
 .colorpeeker .cpcolor.curcolor{
     border-width: 2px;
