@@ -2,12 +2,14 @@
     <div>
         <div class="back" :class="{ active : edit_mode }"></div>
 
-        <div v-if="data.fotos || is_fileadder_open" class="fotos">
+        <div v-if="data.fotos || is_fileadder_open"
+            class="fotos"
+            :class="fotos_class">
 
             <div v-for="(foto,i) in data.fotos" class="foto">
                 <img :src="getFotoSrc(foto)">
                 <span class="tools">
-                    <span class="delete" @click="onDeleteFoto(i)" title="Удалить фото">✘</span>
+                    <span class="tool delete" @click="onDeleteFoto(i)" title="Удалить фото">✘</span>
                 </span>
             </div>
 
@@ -23,24 +25,30 @@
                 :contenteditable="edit_mode"
                 v-html="data.text"></div>
 
-            <span v-if="!edit_mode" class="tools">
+            <span class="tools">
 
-                <span v-if="data.fotos || is_fileadder_open" class="ok" @click="onAlignChanged('left')" title="Слева"><<</span>
-                <span v-if="data.fotos || is_fileadder_open" class="ok" @click="onAlignChanged('center')" title="По центру">--</span>
-                <span v-if="data.fotos || is_fileadder_open" class="ok" @click="onAlignChanged('right')" title="Справа">>></span>
+                <span v-if="data.fotos">
+                    <span v-if="fotos_class!='mini'" class="tool foto" @click="fotos_class='mini'" title="Увеличить размет фото">И</span>
+                    <span v-if="fotos_class!='ico'" class="tool foto" @click="fotos_class='ico'" title="Уменьшить размет фото">м</span>
 
-                <span v-if="show_add_button" class="ok" @click="onFileadderOpen" title="Добавлять фото">+F</span>
-                <span v-if="show_fileadder && foto_count<max_fotos_count" class="cancel" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
+                    <span class="tool ok" @click="onAlignChanged('left')" title="Фото слева"><<</span>
+                    <span class="tool ok" @click="onAlignChanged('center')" title="Фото по центру">--</span>
+                    <span class="tool ok" @click="onAlignChanged('right')" title="Фото справа">>></span>
+                </span>
 
-                <span class="edit" @click="onEditText" title="Редактировать абзац">
+                <span v-if="show_add_button" class="tool ok" @click="onFileadderOpen" title="Добавить фото">+F</span>
+                <span v-if="show_fileadder && foto_count<max_fotos_count" class="tool cancel" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
+
+                <span v-if="edit_mode" class="tool ok" @click="onOk" title="Применить изменение текста">✔</span>
+                
+                <span v-if="edit_mode" class="tool delete" @click="onDeleteText" title="Удалить весь абзац и фото">✘</span>
+                
+                <span v-if="edit_mode" class="tool cancel" @click="onCancel" title="Отменить изменение текста">✘</span>
+
+                <span v-if="!edit_mode" class="tool edit" @click="onEditText" title="Редактировать абзац">
                     <span class="">✏</span>
                 </span>
-            </span>
 
-            <span v-else class="tools">
-                <span class="ok" @click="onOk" title="Применить изменение текста">✔</span>
-                <span class="cancel" @click="onCancel" title="Отменить изменение текста">✘</span>
-                <span class="delete" @click="onDeleteText" title="Удалить весь абзац и фото">✘</span>
             </span>
         </div>
 
@@ -57,7 +65,8 @@ module.exports = {
             edit_mode: false,
             show_fileadder: false,
             max_fotos_count: 2,
-            files: []
+            files: [],
+            fotos_class: this.data.fotos_class
         }
     },
     props:{
@@ -107,7 +116,7 @@ module.exports = {
             this.files=files
         },
         getFotoSrc(foto){
-            return '/img/fotos/'+foto.class+'/'+foto.name
+            return '/img/fotos/'+this.fotos_class+'/'+foto.name
         }
     },
     computed:{
@@ -158,9 +167,10 @@ div:empty::before {
 }
 
 .h2,
-.text{
+.text,
+.item,
+.foto{
     position: relative;
-    z-index: 2;
 }
 .h2[contenteditable='true'],
 .text[contenteditable='true']{
@@ -170,49 +180,38 @@ div[contenteditable='true']{
     position: relative;
     outline: none;
     background-color: #fff;
-    z-index: 2;
 }
 .edited .tools{
-    z-index: 3;
 }
 
 .back{
+    display: flex;
     position: fixed;
     top: 0;
     left: 0;
-    display: none;
-    width: 100%;
+    width: 0;
     height: 100%;
     background: #000;
-    opacity: .3;
+    opacity: .1;
+    transition: opacity .2s ease,width 0s ease .2s;
 }
-.back.active{    
-    display: flex;
-    z-index: 2;
+.back.active{
+    width: 100%;
+    opacity: 0.5;
+    transition: opacity .2s ease;
 }
 
-.item,
+
 .foto{
-    position: relative;
+    z-index: 1;
 }
-.foto img{
-    max-width: 300px;
-    max-height: 300px;
-}
-
-
 
 .tools{
     position: absolute;
-    top: -10px;
+    top: 0;
     right: 0;
-    z-index: 3;
 }
-.fotos .tools{
-    top: 10px;
-    right: 10px;
-}
-.tools>span{
+.tools .tool{
     display: inline-flex;
     width: 30px;
     height: 30px;
@@ -226,38 +225,37 @@ div[contenteditable='true']{
     cursor: pointer;
     margin-right: 4px;
 }
-.tools>span:last-child{
+.tools .tool:last-child{
     margin-right: 0;
 }
-.tools span:hover{
+.tools .tool:hover{
     opacity: .9;
-    z-index: 1;
 }
-.tools span.edit{
+.tools .tool.edit{
     padding: 0;
     margin: 0;
     color: #3874A6;
     border-color: #3874A6;
 }
-.tools span.edit>span{
+.tools .tool.edit>span{
     transform: rotate(130deg);
 }
-.tools span.ok{
+.tools .tool.ok{
     color: #0a0;
     border-color: #0a0;
 }
-.tools span.cancel{
+.tools .tool.cancel{
     color: #888;
     border-color: #888;
 }
-.tools span.delete{
+.tools .tool.delete{
     color: #888;
     border-color: #888;
     font-size: 18px;
     width: 20px;
     height: 20px;
 }
-.tools span.delete:hover{
+.tools .tool.delete:hover{
     border-color: #a44;
     color: #a44;
 }

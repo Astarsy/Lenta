@@ -16,7 +16,6 @@
 
         <div>
             <div 
-                class="post-box" 
                 v-for="post in posts">
                 <flashmessage
                     :key="post.id"
@@ -25,6 +24,7 @@
                     :message="post.message"
                     @confirmed="onConfirmPostDel"
                     @closed="onFlashMessageClosed"></flashmessage>
+                    
                 <div class="post"
                     :style="getStyle(post)">
                     <div class="row">
@@ -287,28 +287,6 @@ module.exports={
 </script>
 
 <style>
-.row{
-    display: flex;
-    justify-content: space-between;
-}
-.ok{
-    color: #0a0;
-    border-color: #0a0;
-}
-.cancel{
-    color: #888;
-    border-color: #888;
-}
-.r125{
-    opacity: 0.5;
-    transform: rotate(155deg);
-    transition: all 0.5s ease;
-}
-
-
-.post *{
-    margin: 0;
-}
 .post{
     position: relative;
     display: inline-flex;
@@ -316,94 +294,5 @@ module.exports={
     border: 2px solid #ddd;
     border-radius: 8px;
     margin-top: 8px;
-}
-.post .row>*{
-    margin-right: 14px;
-}
-.post .row>*:last-child{
-    margin-right: 0;
-}
-.post .remark{
-    font-style: italic;
-}
-
-
-.post .item{
-    position: relative;
-    margin: 4px;
-    padding: 2px 6px;
-    border-radius: 12px;
-    cursor: default;
-}
-/*.post .item:last-child{
-    margin-bottom: 0;
-}*/
-/*.post .item .text:hover{
-    background-color: rgba(0,0,0,0.1);
-}*/
-.post .item h1,
-.post .item h2,
-.post .item h3{
-    text-align: center;
-}
-.post .item .sub{
-    display: inline-block;
-    font-size: 24px;
-    color: #04f;
-}
-.post .item .text:hover .sub{
-    display: inline-block;
-    cursor: pointer;
-}
-.post .item .text:hover .r125{
-    opacity: 1;
-    transform: rotate(125deg);
-    transition: all 0.5s ease;
-}
-
-.ico,
-.mini{
-    display: inline-block;
-    margin: 6px 8px 0 0;
-}
-.ico:last-child,
-.mini:last-child{
-    margin-right: 0;
-}
-.ico{    
-    border-radius: 6px;
-}
-.mini{    
-    border-radius: 12px;
-}
-.button{
-    display: inline-block;
-    font-weight: bold;
-    border-radius: 6px;
-    padding: 0 6px 2px 6px;
-    cursor: pointer;
-    user-select: none;
-}
-.button.ico{
-    display: inline-flex;
-    width: 22px;
-    height: 22px;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-    color: #000;
-    background-color: rgba(0,0,0,0);
-    border:1px solid #000;
-    opacity: .1;
-    transition: opacity 0.4s ease;
-}
-.button.ico:hover{
-    opacity: .8;
-    transition: opacity 0.4s ease;
-}
-.button.ico:active{
-    background-color: #fff;
-    color: #888;
-    border-color: #aaa;
 }
 </style>

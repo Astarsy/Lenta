@@ -53,7 +53,7 @@ module.exports = {
             max_items_count: 3,
             items: [
                 { align: 'center',tag: 'h2', text: 'Заголовок публикации' },
-                { align: 'center',tag: 'text',text: 'Очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации...',fotos: [{class:'mini',name:'f1.jpg'},]}
+                { align: 'center',tag: 'text',text: 'Очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации...',fotos: [{name:'f1.jpg'},],fotos_class:'mini'}
             ],
             bgColorIndex: 0,
             bgColor: '#fff',
@@ -188,7 +188,7 @@ console.dir(responce.body)
     border-radius: 12px;
 }
 .post *{
-    display: flex;
+    /*display: flex;*/
 }
 .post-title{
     margin: 2px 8px;
@@ -201,46 +201,53 @@ console.dir(responce.body)
     font-style: italic;
 }
 
-.fotos{
-    justify-content: center;
-}
+
+.fotos,
 .foto{
-    margin-right: 24px;
+    display: inline-flex;
 }
-.foto:last-child{
+.fotos>div{
+    margin-right: 6px;
+}
+.fotos>div:last-child{
     margin-right: 0;
 }
 .foto img{
     border-radius: 12px;
 }
-.center{
-    flex-flow: column;
+.item{
+    display: block;
+    text-align: center;
+    margin-bottom: 12px;
 }
-.center .fotos{
-    /*justify-content: space-around;*/
+.stub{
+    clear: both;
 }
-.left{
+.left .fotos{
+    float: left;
+    margin-right: 10px;
 }
-.right{
-    flex-direction: row-reverse;
+.right .fotos{
+    float: right;
+    margin-left: 10px;
 }
 .h2{
     font-size: 24px;
     font-weight: bold;
+    color: #555;
+    text-align: center;
 }
-.center .h2{
-    justify-content: center;
-}
-.left .h2{
-    justify-content: flex-start;
-}
-.right .h2{
-    justify-content: flex-end;
+.text{
+    text-align: left;
 }
 
-.ico{
-    width: 84px;
-    height: 84px;
+.fotos.mini img{
+    max-width: 300px;
+    max-height: 300px;
+}
+.fotos.ico img{
+    max-width: 84px;
+    max-height: 84px;
 }
 
 </style>

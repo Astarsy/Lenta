@@ -11,7 +11,7 @@
             <img :src="i.image">
 
             <span class="tools">
-                <span class="delete" @click="onDeleteFoto" title="Удалить">✘</span>
+                <span class="tool delete" @click="onDeleteFoto" title="Удалить">✘</span>
             </span>
 
 <!--             <div class="buttons">
@@ -42,7 +42,7 @@ module.exports = {
         return{
             flash: '',
             filedata: [],
-            align: 'center'
+            align: 'center',
         }
     },
     props:{        
@@ -113,7 +113,8 @@ module.exports = {
 }
 </script>
 <style>
-.foto.add-button{
+.add-button{
+    display: inline-flex;
     position: relative;
     align-self: center;
     align-items: center;
