@@ -53,6 +53,7 @@
             </span>    
 
             <span v-if="edit_mode" class="delete-item" @click="onDelete" title="Удалить весь абзац и фото">✘</span>
+        <div class="stub" style="clear: both;"></div>
         </div>
 
     </div>
@@ -199,6 +200,7 @@ div[contenteditable='true']{
 
 .h2.edited,
 .text.edited{
+    background-color: #fff;
     cursor: text;
     z-index: 2;
 }
@@ -306,14 +308,21 @@ div[contenteditable='true']{
 
 .delete-item{
     position: absolute;
-    bottom: 0;
-    right: 0;
-    color: #a44;
+    top: -30px;
+    left: 0;
+    display: inline-flex;
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #9E6666;
+    background-color: #fff;
+    border-top-right-radius: 8px;
     font-size: 18px;
     cursor: pointer;
-    opacity: .3;
 }
 .delete-item:hover{
-    opacity: 1;
+    color: #C41300;
 }
 </style>
