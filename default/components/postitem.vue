@@ -1,33 +1,42 @@
 <template>
     <div>
-        <div class="back" :class="{ active : edit_mode }"></div>
+        <div class="back" :class="{ active : edit_mode }" @click="onOk"></div>
 
         <div v-if="data.fotos || is_fileadder_open"
             class="fotos"
             :class="fotos_class">
 
-            <div v-for="(foto,i) in data.fotos" class="foto">
+            <div v-for="(foto,i) in data.fotos"
+                class="foto"
+                :class="{ edited : edit_mode}">
                 <img :src="getFotoSrc(foto)">
                 <span class="tools">
                     <span class="tool delete" @click="onDeleteFoto(i)" title="Удалить фото">✘</span>
                 </span>
             </div>
 
-            <fileadder v-if="is_fileadder_open" :key="index" :canadd="canadd" @changed="onFotoChanged"></fileadder>
+            <fileadder v-if="is_fileadder_open"
+                :key="index"
+                :canadd="canadd"
+                :editmode="edit_mode"
+                @changed="onFotoChanged"></fileadder>
 
         </div>
 
 
-        <div :class="text_box_class">
+        <div :class="text_box_class" @click="onEditText">
 
             <div :ref="ref"
-                placeholder="Напишите здесь что-нибудь интересное!"
+                placeholder="Напишите здесь что-нибудь интересное или добавьте фото!"
                 :contenteditable="edit_mode"
                 v-html="data.text"></div>
 
-            <span class="tools">
+            <span class="tools floating"
+                :class="{ tools_fixed : tools_fixed || edit_mode}">
 
-                <span v-if="data.fotos">
+                <span class="tool ok" @click.stop="onOk" title="Применить изменение текста">✔</span>
+
+                <span class="tool-set" v-if="data.fotos || files.length>0">
                     <span v-if="fotos_class!='mini'" class="tool foto" @click="fotos_class='mini'" title="Увеличить размет фото">И</span>
                     <span v-if="fotos_class!='ico'" class="tool foto" @click="fotos_class='ico'" title="Уменьшить размет фото">м</span>
 
@@ -39,17 +48,11 @@
                 <span v-if="show_add_button" class="tool ok" @click="onFileadderOpen" title="Добавить фото">+F</span>
                 <span v-if="show_fileadder && foto_count<max_fotos_count" class="tool cancel" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
 
-                <span v-if="edit_mode" class="tool ok" @click="onOk" title="Применить изменение текста">✔</span>
-                
-                <span v-if="edit_mode" class="tool delete" @click="onDeleteText" title="Удалить весь абзац и фото">✘</span>
-                
-                <span v-if="edit_mode" class="tool cancel" @click="onCancel" title="Отменить изменение текста">✘</span>
+                <span v-if="edit_mode" class="tool cancel" @click.stop="onCancel" title="Отменить изменение текста">✘</span>
 
-                <span v-if="!edit_mode" class="tool edit" @click="onEditText" title="Редактировать абзац">
-                    <span class="">✏</span>
-                </span>
+            </span>    
 
-            </span>
+            <span v-if="edit_mode" class="delete-item" @click="onDelete" title="Удалить весь абзац и фото">✘</span>
         </div>
 
     </div>
@@ -66,7 +69,8 @@ module.exports = {
             show_fileadder: false,
             max_fotos_count: 2,
             files: [],
-            fotos_class: this.data.fotos_class
+            fotos_class: this.data.fotos_class,
+            tools_fixed: false
         }
     },
     props:{
@@ -93,14 +97,15 @@ module.exports = {
         },
         onOk(){
             this.edit_mode=false
+            this.show_fileadder=false
+
+            var content=this.$refs[this.ref].innerText
         },
         onCancel(){
             this.edit_mode=false
             this.$refs[this.ref].innerText=this.data.text
         },
-        onDeleteText(){
-            this.data.text=undefined
-            this.edit_mode=false
+        onDelete(){
             this.$emit('deleted',this.index)
         },
         onFileadderOpen(){
@@ -172,6 +177,16 @@ div:empty::before {
 .foto{
     position: relative;
 }
+
+.h2,
+.text{
+    cursor: pointer;
+}
+
+.pannel{
+    overflow: hidden;
+}
+
 .h2[contenteditable='true'],
 .text[contenteditable='true']{
     background-color: #fff;
@@ -181,24 +196,32 @@ div[contenteditable='true']{
     outline: none;
     background-color: #fff;
 }
-.edited .tools{
+
+.h2.edited,
+.text.edited{
+    cursor: text;
+    z-index: 2;
+}
+.foto.edited{
+    z-index: 3;
 }
 
 .back{
-    display: flex;
+    /*display: flex;*/
     position: fixed;
     top: 0;
     left: 0;
     width: 0;
     height: 100%;
     background: #000;
-    opacity: .1;
+    opacity: 0;
     transition: opacity .2s ease,width 0s ease .2s;
 }
 .back.active{
     width: 100%;
-    opacity: 0.5;
+    opacity: 0.15;
     transition: opacity .2s ease;
+    z-index: 1;
 }
 
 
@@ -210,6 +233,27 @@ div[contenteditable='true']{
     position: absolute;
     top: 0;
     right: 0;
+    font-weight: normal;
+    z-index: 1;
+}
+.floating{
+    top: -36px;
+    right: -246px;
+    border-top-left-radius: 8px;
+    padding: 2px;
+    cursor: pointer;
+    transition: right 0.3s ease;
+}
+.tools_fixed{
+    right: 0;
+    background-color: #fff;
+}
+.tool-set{
+    margin-left: 20px;
+}
+.tools,.tool-set{
+    display: flex;
+    /*flex-flow: column;*/
 }
 .tools .tool{
     display: inline-flex;
@@ -223,7 +267,6 @@ div[contenteditable='true']{
     background-color: #fff;
     opacity: .4;
     cursor: pointer;
-    margin-right: 4px;
 }
 .tools .tool:last-child{
     margin-right: 0;
@@ -247,6 +290,7 @@ div[contenteditable='true']{
 .tools .tool.cancel{
     color: #888;
     border-color: #888;
+    margin-left: 20px;
 }
 .tools .tool.delete{
     color: #888;
@@ -258,5 +302,18 @@ div[contenteditable='true']{
 .tools .tool.delete:hover{
     border-color: #a44;
     color: #a44;
+}
+
+.delete-item{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    color: #a44;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: .3;
+}
+.delete-item:hover{
+    opacity: 1;
 }
 </style>

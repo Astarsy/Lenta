@@ -6,27 +6,13 @@
 
         <div v-for="(i,index) in filedata"
             class="foto"
-            :class="{ vertical : !i.ratio }">
+            :class="{ edited : editmode }">
 
             <img :src="i.image">
 
             <span class="tools">
                 <span class="tool delete" @click="onDeleteFoto" title="Удалить">✘</span>
             </span>
-
-<!--             <div class="buttons">
-                <span title="Слева" class="ok" 
-                    :class="{ active : align=='left' }"
-                    @click.stop="align='left'">⇇</span>
-                <span title="В центре" class="ok" 
-                    :class="{ active : align=='center' }"
-                    @click.stop="align='center'">⟺</span>
-                <span title="Справа" class="ok" 
-                    :class="{ active : align=='right' }"
-                    @click.stop="align='right'">⇉</span>
-                <span title="Удалить" class="cancel"
-                    @click.stop="onDeleteFoto(index)">✘</span>
-            </div> -->
 
         </div>
 
@@ -46,7 +32,8 @@ module.exports = {
         }
     },
     props:{        
-            canadd: Boolean
+            canadd: Boolean,
+            editmode: Boolean
     },
     methods: {
         onDeleteFoto(i){

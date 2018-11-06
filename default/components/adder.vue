@@ -79,10 +79,11 @@ module.exports = {
         },
         onAddItem(){
             if(this.disable_add)return
-            this.items.splice(this.items.length,0,{align:'center',tag:'text',text:''})
+            this.items.splice(this.items.length,0,{align:'center',tag:'text',text:'',fotos_class:'mini'})
         },
         onItemDeleted(key){
             this.items.splice(key,1)
+            this.disable_add=false
         },
         onColorChoice(i,c){
             this.bgColorIndex=i
@@ -155,6 +156,7 @@ console.dir(responce.body)
     align-self: center;
     font-size: 24px;
     color: #0a0;
+    user-select: none;
     cursor: pointer;
 }
 .add-item-button.disabled{
@@ -206,10 +208,10 @@ console.dir(responce.body)
 .foto{
     display: inline-flex;
 }
-.fotos>div{
+.fotos div.foto{
     margin-right: 6px;
 }
-.fotos>div:last-child{
+.fotos div.foto:last-child{
     margin-right: 0;
 }
 .foto img{
@@ -242,12 +244,12 @@ console.dir(responce.body)
 }
 
 .fotos.mini img{
-    max-width: 300px;
-    max-height: 300px;
+    width: 300px;
+    height: 300px;
 }
 .fotos.ico img{
-    max-width: 84px;
-    max-height: 84px;
+    width: 84px;
+    height: 84px;
 }
 
 </style>
