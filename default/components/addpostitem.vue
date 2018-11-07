@@ -10,7 +10,7 @@
                 class="foto"
                 :class="{ edited : edit_mode}">
                 <img :src="getFotoSrc(foto)">
-                <span class="tools">
+                <span v-if="edit_mode" class="tools">
                     <span class="tool delete" @click="onDeleteFoto(i)" title="Удалить фото">✘</span>
                 </span>
             </div>
@@ -181,7 +181,11 @@ div:empty::before {
 
 .h2,
 .text{
+    padding: 0 4px;
     cursor: pointer;
+}
+
+.item{
 }
 
 .pannel{
@@ -201,10 +205,12 @@ div[contenteditable='true']{
 .h2.edited,
 .text.edited{
     background-color: #fff;
+    /*padding-bottom: 4px;*/
     cursor: text;
     z-index: 2;
 }
 .foto.edited{
+    /*margin-top: 4px;*/
     z-index: 3;
 }
 
@@ -264,7 +270,7 @@ div[contenteditable='true']{
     justify-content: center;
     align-items: center;
     font-size: 24px;
-    border: 2px solid #888;
+    border: 2px solid;
     border-radius: 6px;
     background-color: #fff;
     opacity: .4;
@@ -286,8 +292,6 @@ div[contenteditable='true']{
     transform: rotate(130deg);
 }
 .tools .tool.ok{
-    color: #0a0;
-    border-color: #0a0;
 }
 .tools .tool.cancel{
     color: #888;

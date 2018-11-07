@@ -1,11 +1,13 @@
 <template>
-    <div class="pannel">
+    <div class="tabsheet">
+
         <flashmessage
             v-if="message"
             :parent="this"
             :message="message"
             @closed="onFlashMessageClosed"></flashmessage>
-        <div class="button"
+
+        <div class="button ok"
             v-if="add && !adding_mode"
             @click="onAddPostClick">Создать публикацию</div>
 
@@ -14,62 +16,16 @@
             @message-setn="onMessageSent"
             @adder-close="closeAdder"></adder>
 
-        <div>
-            <div 
-                v-for="post in posts">
-                <flashmessage
-                    :key="post.id"
-                    v-if="post.message"
-                    :parent="post"
-                    :message="post.message"
-                    @confirmed="onConfirmPostDel"
-                    @closed="onFlashMessageClosed"></flashmessage>
-                    
-                <div class="post"
-                    :style="getStyle(post)">
-                    <div class="row">
-                        <span v-if="post.status=='new'" class="remark">На модерации</span>
-                        <span v-if="post.updated_at">{{ post.updated_at | date }}</span>
-                        <div v-if="add" class="button ico" title="Удалить"
-                            @click="onPostDelClick(post)">✘</div>
-                    </div>
-                    <span v-if="!add">{{ post.user_name }}</span>
-
-                    <div v-for="(item,i_i) in post.items">
-                        <div class="fotos">
-                            <img v-for="foto in item.fotos"
-                                v-html="foto.html"
-                                :src="foto.src"
-                                :class="foto.class">
-                        </div>
-                        <div v-if="!item.edit_mode" class="item">
-                            <span v-html="item.html"></span>
-                            <span class="sub r125" title="Редактировать текст"
-                                @click="onItemEdit(post,item)">✏</span>
-                        </div>
-                        <div v-else class="item">
-                            <inputex
-                                v-model="item.text"
-                                @ok="onItemEditOk(post,item)"
-                                @cancel="onItemEditCancel(post,item)"></inputex>
-<!--                             <input v-model="item.text">
-                            <span class="sub ok" title="Сохранить"
-                                @click="onItemEditOk(post,item)">✔</span>
-                            <span class="sub cancel" title="Отменить"
-                                @click="onItemEditCancel(post,item)">✘</span> -->
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+        <post v-for="post in posts"
+            :data="post"></post>
+            
     </div>
 </template>
 
 <script>
 var adder=require('./adder.vue')
 var flashmessage=require('./flashmessage.vue')
-var inputex=require('./inputex.vue')
+var post=require('./post.vue')
 module.exports={
     data: function(){
         return {
@@ -88,71 +44,71 @@ module.exports={
         add: Boolean
     },
     methods: {
-        onItemEdit(post,item){
-            item.edit_mode=true
-            this.updatePost(post)
-        },
-        onItemEditOk(post,item){
-            var data=new FormData()
-            data.append('iid',item.id)
-            data.append('text',item.text)
-            this.$http.post(window.location.origin+"/api/edititem",data).then(
-
-                function(responce){
-                    post.message={
-                        style: 'ok',
-                        type: 'info',
-                        text: 'Готово!'
-                    }
-                    item.edit_mode=false
-                    item=this.setItemHtml(item)
-                    this.updatePost(post)
-                },
-
-                function(responce){
-                    post.message={
-                        style: 'danger',
-                        type: 'info',
-                        text: responce.body
-                    }
-                    this.updatePost(post)
-                })
-        },
-        onItemEditCancel(post,item){
-            item.edit_mode=false
-            this.updatePost(post)            
-        },
         onFlashMessageClosed(post){
             post.message=null
             this.updatePost(post)
         },
-        delPost(post){
-            // Послать запрос на удаление поста и,
-            // если Ok - optimistic delete
-            var data=new FormData()
-            data.append('id',post.id)
-            this.$http.post(window.location.origin+"/api/delete",data).then(
+        // onItemEdit(post,item){
+        //     item.edit_mode=true
+        //     this.updatePost(post)
+        // },
+        // onItemEditOk(post,item){
+        //     var data=new FormData()
+        //     data.append('iid',item.id)
+        //     data.append('text',item.text)
+        //     this.$http.post(window.location.origin+"/api/edititem",data).then(
 
-                function(responce){
-                    var i=this.getPostIndexById(post.id)
-                    if(null!==i)this.posts.splice(i,1)
-                    this.message={
-                        style: 'ok',
-                        type: 'info',
-                        text: 'Готово!'
-                    }
-                    this.updatePost(post)
-                },
+        //         function(responce){
+        //             post.message={
+        //                 style: 'ok',
+        //                 type: 'info',
+        //                 text: 'Готово!'
+        //             }
+        //             item.edit_mode=false
+        //             item=this.setItemHtml(item)
+        //             this.updatePost(post)
+        //         },
 
-                function(responce){
-                    post.message={
-                        style: 'danger',
-                        type: 'info',
-                        text: responce.body
-                    }
-                    this.updatePost(post)
-                })
-        },
+        //         function(responce){
+        //             post.message={
+        //                 style: 'danger',
+        //                 type: 'info',
+        //                 text: responce.body
+        //             }
+        //             this.updatePost(post)
+        //         })
+        // },
+        // onItemEditCancel(post,item){
+        //     item.edit_mode=false
+        //     this.updatePost(post)            
+        // },
+        // delPost(post){
+        //     // Послать запрос на удаление поста и,
+        //     // если Ok - optimistic delete
+        //     var data=new FormData()
+        //     data.append('id',post.id)
+        //     this.$http.post(window.location.origin+"/api/delete",data).then(
+
+        //         function(responce){
+        //             var i=this.getPostIndexById(post.id)
+        //             if(null!==i)this.posts.splice(i,1)
+        //             this.message={
+        //                 style: 'ok',
+        //                 type: 'info',
+        //                 text: 'Готово!'
+        //             }
+        //             this.updatePost(post)
+        //         },
+
+        //         function(responce){
+        //             post.message={
+        //                 style: 'danger',
+        //                 type: 'info',
+        //                 text: responce.body
+        //             }
+        //             this.updatePost(post)
+        //         })
+        // },
         onConfirmPostDel(post){
             // Подтвердить удаление и удалить пост
             post.message=null
@@ -264,16 +220,16 @@ module.exports={
             }
             return posts
         },
-        setItemHtml(item){
-            if(item.tag){
-                item.o_tag='<'+item.tag+'>'
-                item.c_tag='</'+item.tag+'>'
-                item.html='<'+item.tag+'>'+item.text+'</'+item.tag+'>'
-            }else{
-                item.html=item.text
-            }
-            return item     
-        }
+        // setItemHtml(item){
+        //     if(item.tag){
+        //         item.o_tag='<'+item.tag+'>'
+        //         item.c_tag='</'+item.tag+'>'
+        //         item.html='<'+item.tag+'>'+item.text+'</'+item.tag+'>'
+        //     }else{
+        //         item.html=item.text
+        //     }
+        //     return item     
+        // }
     },
     created(){
         this.refresh()
@@ -281,12 +237,16 @@ module.exports={
     components: {
         adder,
         flashmessage,
-        inputex
+        post
     }
 }    
 </script>
 
 <style>
+.tabsheet{
+    padding: 8px;
+    border-top: 2px solid #ddd;
+}
 .post{
     position: relative;
     display: inline-flex;

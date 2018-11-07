@@ -33,7 +33,7 @@
         </div>
 
         <div class="buttons">
-            <span class="button send"
+            <span class="button ok"
                 @click.prevent="onSendClick">Создать</span>
             <span class="button cancel"
                 @click.stop="onCloseClick">Отменить</span>
@@ -44,7 +44,7 @@
 
 <script>
 var colorpeeker=require('./colorpeeker.vue')
-var postitem=require('./postitem.vue')
+var postitem=require('./addpostitem.vue')
 module.exports = {
     data: function(){
         return{         
@@ -168,8 +168,6 @@ console.dir(responce.body)
     display: flex;
     flex-flow: column;
     border: 2px solid #ddd;
-    border-right: none;
-    border-left: none;
     border-radius: 12px;
 }
 .adder .head{
@@ -228,10 +226,12 @@ console.dir(responce.body)
 .left .fotos{
     float: left;
     margin-right: 10px;
+    padding-left: 4px;
 }
 .right .fotos{
     float: right;
     margin-left: 10px;
+    padding-right: 4px;
 }
 .h2{
     font-size: 24px;
@@ -250,6 +250,11 @@ console.dir(responce.body)
 .fotos.ico img{
     width: 84px;
     height: 84px;
+}
+
+.buttons{
+    display: inline-block;
+    margin: 4px 8px;
 }
 
 </style>

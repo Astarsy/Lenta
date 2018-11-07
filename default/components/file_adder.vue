@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="file-adder">
         <flash :text="flash" @closed="flash=''"></flash>
 
         <input :id="fileElem" type="file" accept="image/jpeg" style="display:none" @change.prevent="handleFiles" />
@@ -10,7 +10,7 @@
 
             <img :src="i.image">
 
-            <span class="tools">
+            <span v-if="editmode" class="tools">
                 <span class="tool delete" @click="onDeleteFoto" title="Удалить">✘</span>
             </span>
 
@@ -100,6 +100,9 @@ module.exports = {
 }
 </script>
 <style>
+.file-adder{
+    display: flex;
+}
 .add-button{
     display: inline-flex;
     position: relative;
@@ -114,5 +117,6 @@ module.exports = {
     height: 60px;
     margin-left: 8px;
     cursor: pointer;
+    z-index: 3;
 }
 </style>
