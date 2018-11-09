@@ -4,7 +4,7 @@
 
         <input :id="fileElem" type="file" accept="image/jpeg" style="display:none" @change.prevent="handleFiles" />
 
-        <div v-for="(i,index) in filedata"
+<!--         <div v-for="(i,index) in filedata"
             class="foto"
             :class="{ edited : editmode }">
 
@@ -14,7 +14,7 @@
                 <span class="tool delete" @click="onDeleteFoto" title="Удалить">✘</span>
             </span>
 
-        </div>
+        </div> -->
 
         <div class="foto add-button" v-if="this.canadd" @click.stop="onAddClick" title="Выбрать фото">✚</div>
 
@@ -86,7 +86,7 @@ module.exports = {
             }
         },
         changesIsOver: function(){
-            this.$emit('changed',this.getFiles(),this.align)
+            this.$emit('changed',this.getFiles(),this.filedata)
         }
     },
     computed:{
@@ -111,6 +111,7 @@ module.exports = {
     justify-content: center;
     font-size: 36px;
     color: #0a0;
+    background-color: #fff;
     border: 2px solid #0a0;
     border-radius: 12px;
     width: 60px;

@@ -48,7 +48,6 @@ module.exports = {
             // this.refreshTimerId=setTimeout(this.tick,5000)
         },
         getStartData(){
-            // Предполагается загрузка этого массива с сервера
                 return document.mag_start_data
         }
     },
@@ -65,6 +64,29 @@ module.exports = {
 </script>
 
 <style>
+
+.h1,.h2,.h3,.h4{
+    font-weight: bold;
+    color: #555;
+    text-align: center;
+}
+.h1{ font-size: 32px; }
+.h2{ font-size: 24px; }
+.h3{ font-size: 20px; }
+.h4{ font-size: 16px; }
+.text{
+    text-align: left;
+}
+.h2,
+.text,
+.item,
+.foto{
+    position: relative;
+    cursor: default;
+}
+
+
+
 .button{
     display: inline-flex;
     justify-content: center;
@@ -75,6 +97,7 @@ module.exports = {
     color: #666;
     padding: 4px 12px;
     cursor: pointer;
+    user-select: none;
 }
 .ok{
     color: #00AA17;
@@ -82,7 +105,6 @@ module.exports = {
 }
 .cancel{
     border-radius: 100px;
-    padding: 0 8px;
     font-size: 16px;
 }
 
@@ -91,24 +113,28 @@ module.exports = {
     margin-left: 20px;
 }
 .tab{
+    width: 100px;
+    margin-top: 2px;
     padding: 4px 16px;
     margin-right: -6px;
     border-width: 2px;
-    border-color: #ddd;
+    border-color: #ccc;
     border-bottom: none;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     background-color: #f8f8f8;
+    user-select: none;
     z-index: 0;
 }
 .tab:last-child{
     margin-left: 12px;
 }
 .tab.active{
+    margin-top: 0;
     background-color: #fff;
     border-color: #d8d8d8;
     border-bottom: 2px solid #fff;
     margin-bottom: -2px;
-    z-index: 2;
+    z-index: 1;
 }
 </style>

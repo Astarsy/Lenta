@@ -13,12 +13,15 @@
 
         <adder v-if="adding_mode"
             method="/api/add"
+            :post="edited_post"
             @message-setn="onMessageSent"
             @adder-close="closeAdder"></adder>
 
         <post v-for="post in posts"
-            :data="post"></post>
-            
+            :data="post"
+            :canedit="canedit"
+            @edit="onPostEdit(post)"></post>
+
     </div>
 </template>
 
@@ -36,6 +39,7 @@ module.exports={
                 id: '25'
             },
             adding_mode: false,
+            edited_post: undefined,
             message: null
         }
     },
@@ -44,6 +48,10 @@ module.exports={
         add: Boolean
     },
     methods: {
+        onPostEdit(post){
+            this.edited_post=post,
+            this.adding_mode=true
+        },
         onFlashMessageClosed(post){
             post.message=null
             this.updatePost(post)
@@ -82,33 +90,33 @@ module.exports={
         //     item.edit_mode=false
         //     this.updatePost(post)            
         // },
-        // delPost(post){
-        //     // Послать запрос на удаление поста и,
-        //     // если Ok - optimistic delete
-        //     var data=new FormData()
-        //     data.append('id',post.id)
-        //     this.$http.post(window.location.origin+"/api/delete",data).then(
+        delPost(post){
+            // Послать запрос на удаление поста и,
+            // если Ok - optimistic delete
+            var data=new FormData()
+            data.append('id',post.id)
+            this.$http.post(window.location.origin+"/api/delete",data).then(
 
-        //         function(responce){
-        //             var i=this.getPostIndexById(post.id)
-        //             if(null!==i)this.posts.splice(i,1)
-        //             this.message={
-        //                 style: 'ok',
-        //                 type: 'info',
-        //                 text: 'Готово!'
-        //             }
-        //             this.updatePost(post)
-        //         },
+                function(responce){
+                    var i=this.getPostIndexById(post.id)
+                    if(null!==i)this.posts.splice(i,1)
+                    this.message={
+                        style: 'ok',
+                        type: 'info',
+                        text: 'Готово!'
+                    }
+                    this.updatePost(post)
+                },
 
-        //         function(responce){
-        //             post.message={
-        //                 style: 'danger',
-        //                 type: 'info',
-        //                 text: responce.body
-        //             }
-        //             this.updatePost(post)
-        //         })
-        // },
+                function(responce){
+                    post.message={
+                        style: 'danger',
+                        type: 'info',
+                        text: responce.body
+                    }
+                    this.updatePost(post)
+                })
+        },
         onConfirmPostDel(post){
             // Подтвердить удаление и удалить пост
             post.message=null
@@ -136,6 +144,12 @@ module.exports={
             this.adding_mode=false
         },
         onAddPostClick(){
+            this.edited_post={
+                    bgci:0,
+                    items:[
+                        {align: 'center',tag: 'text',text: '',fotos_class:'ico'}
+                        ]
+                    }
             this.adding_mode=true
         },
         updatePost(post){
@@ -220,19 +234,14 @@ module.exports={
             }
             return posts
         },
-        // setItemHtml(item){
-        //     if(item.tag){
-        //         item.o_tag='<'+item.tag+'>'
-        //         item.c_tag='</'+item.tag+'>'
-        //         item.html='<'+item.tag+'>'+item.text+'</'+item.tag+'>'
-        //     }else{
-        //         item.html=item.text
-        //     }
-        //     return item     
-        // }
     },
     created(){
         this.refresh()
+    },
+    computed:{
+        canedit:function(){
+            return this.add && !this.adding_mode
+        }
     },
     components: {
         adder,
@@ -244,7 +253,7 @@ module.exports={
 
 <style>
 .tabsheet{
-    padding: 8px;
+    padding: 8px 0 0 0;
     border-top: 2px solid #ddd;
 }
 .post{

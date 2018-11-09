@@ -9,9 +9,10 @@
             @confirmed="onConfirmPostDel"
             @closed="onFlashMessageClosed"></flashmessage>
 
-        <div class="post-title">
-            <span>Новая публикация</span>
-            <span>11:11 11.11.18</span>
+        <div class="post-title"
+            :class="{ 'status-new' : data.status=='new' }">
+            <span v-if="data.status=='new'">Новая публикация</span>
+            <span>{{ data.updated_at | date }}</span>
         </div>
 
         <div v-for="item in data.items"
@@ -31,6 +32,11 @@
 
         </div>
 
+        <div v-if="canedit"
+            class="edit"
+            title="Редактировать публикацю"
+            @click="$emit('edit')">✎</div>
+
     </div>
 </template>
 
@@ -42,7 +48,11 @@ module.exports = {
         }
     },
     props:{
-        data: Object
+        data: Object,
+        canedit: {
+            type: Boolean,
+            default: false
+        }
     },
     methods: {
         getFotoSrc(item,foto){
@@ -60,12 +70,46 @@ module.exports = {
         },
     },
     created(){
-        console.dir(this.data)
+        // console.dir(this.data)
     },
     components: {
         flashmessage
     }
 }
 </script>
+
 <style>
+
+.post{
+    display: flex;
+    flex-flow: column;
+    border-right: none;
+    border-left: none;
+    border-radius: 12px;
+    padding-bottom: 4px;
+}
+.post .edit{
+    position: absolute;
+    top: 0;
+    right: 4px;
+    color: #0772a1;
+    font-size: 20px;
+    font-weight: bold;
+    transform: rotate(110deg);
+    cursor: pointer;
+    opacity: .1;
+}
+.post:hover .edit{
+    opacity: 1;
+}
+.post-title{
+    margin: 2px 8px;
+}
+.post-title.status-new{
+    font-style: italic;
+}
+.post-title>span{
+    margin-left: 20px;
+}
+
 </style>

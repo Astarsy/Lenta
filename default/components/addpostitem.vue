@@ -1,35 +1,41 @@
 <template>
-    <div>
-        <div class="back" :class="{ active : edit_mode }" @click="onOk"></div>
+    <div>        
+        
+        <div class="back" :class="{ active : edit_mode }"></div>
 
-        <div v-if="data.fotos || is_fileadder_open"
-            class="fotos"
-            :class="fotos_class">
+        <div class="item" :class="{ edited : edit_mode }" @click="onEditText">
 
-            <div v-for="(foto,i) in data.fotos"
-                class="foto"
-                :class="{ edited : edit_mode}">
-                <img :src="getFotoSrc(foto)">
-                <span v-if="edit_mode" class="tools">
-                    <span class="tool delete" @click="onDeleteFoto(i)" title="Удалить фото">✘</span>
-                </span>
+            <div v-if="data.fotos || is_fileadder_open"
+                class="fotos"
+                :class="foto_class_safe">
+
+                <div v-for="(foto,i) in available_fotos"
+                    class="foto"
+                    :class="{ edited : edit_mode}">
+                    <img :src="getFotoSrc(foto)">
+                    <span v-if="edit_mode" class="tools">
+                        <span class="tool delete" @click="onDeleteFoto(i)" title="Удалить фото">✘</span>
+                    </span>
+                </div>
+
+                <div v-for="(i,index) in available_files"
+                    class="foto"
+                    :class="{ edited : editmode }">
+                    <img :src="i.image">
+                    <span v-if="edit_mode" class="tools">
+                        <span class="tool delete" @click="$refs.fileadder.onDeleteFoto(i)" title="Удалить фото">✘</span>
+                    </span>
+                </div>
+
+                <fileadder v-if="is_fileadder_open"
+                    ref='fileadder'
+                    :key="index"
+                    :canadd="canadd"
+                    :editmode="edit_mode"
+                    @changed="onFotoChanged"></fileadder>
+
             </div>
 
-            <fileadder v-if="is_fileadder_open"
-                :key="index"
-                :canadd="canadd"
-                :editmode="edit_mode"
-                @changed="onFotoChanged"></fileadder>
-
-        </div>
-
-
-        <div :class="text_box_class" @click="onEditText">
-
-            <div :ref="ref"
-                placeholder="Напишите здесь что-нибудь интересное или добавьте фото!"
-                :contenteditable="edit_mode"
-                v-html="data.text"></div>
 
             <span class="tools floating"
                 :class="{ tools_fixed : tools_fixed || edit_mode}">
@@ -37,8 +43,9 @@
                 <span class="tool ok" @click.stop="onOk" title="Применить изменение текста">✔</span>
 
                 <span class="tool-set" v-if="data.fotos || files.length>0">
-                    <span v-if="fotos_class!='mini'" class="tool foto" @click="fotos_class='mini'" title="Увеличить размет фото">И</span>
-                    <span v-if="fotos_class!='ico'" class="tool foto" @click="fotos_class='ico'" title="Уменьшить размет фото">м</span>
+
+                    <span v-if="foto_class_safe!='mini'" class="tool foto" @click="setFotosClass('mini')" title="Увеличить размет фото">И</span>
+                    <span v-if="foto_class_safe!='ico'" class="tool foto" @click="setFotosClass('ico')" title="Уменьшить размет фото">м</span>
 
                     <span class="tool ok" @click="onAlignChanged('left')" title="Фото слева"><<</span>
                     <span class="tool ok" @click="onAlignChanged('center')" title="Фото по центру">--</span>
@@ -46,16 +53,23 @@
                 </span>
 
                 <span v-if="show_add_button" class="tool ok" @click="onFileadderOpen" title="Добавить фото">+F</span>
-                <span v-if="show_fileadder && foto_count<max_fotos_count" class="tool cancel" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
+                <span v-if="show_fileadder && foto_count<max_fotos_count" class="tool ok" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
 
                 <span v-if="edit_mode" class="tool cancel" @click.stop="onCancel" title="Отменить изменение текста">✘</span>
+            </span> 
 
-            </span>    
+            <div :class="text_box_class">
 
-            <span v-if="edit_mode" class="delete-item" @click="onDelete" title="Удалить весь абзац и фото">✘</span>
-        <div class="stub" style="clear: both;"></div>
+                <div :ref="ref"
+                    placeholder="Напишите здесь что-нибудь интересное или добавьте фото!"
+                    :contenteditable="edit_mode"
+                    v-html="data.text"></div>   
+
+                <span v-if="edit_mode" class="delete-item" @click="onDelete" title="Удалить весь абзац и фото">✘</span>
+            <div class="stub" style="clear: both;"></div>
+            </div>
+
         </div>
-
     </div>
 
 </template>
@@ -68,9 +82,9 @@ module.exports = {
         return{
             edit_mode: false,
             show_fileadder: false,
-            max_fotos_count: 2,
             files: [],
-            fotos_class: this.data.fotos_class,
+            filedata: [],
+            fotos_class: this.data.fotos_class, // не использовать, использовать foto_class_safe
             tools_fixed: false
         }
     },
@@ -84,6 +98,9 @@ module.exports = {
         }
     },
     methods: {
+        setFotosClass(v){
+            this.fotos_class=v
+        },
         onAlignChanged(value){
             this.$emit('alignchanged',this.index,value)
         },
@@ -118,14 +135,33 @@ module.exports = {
         onDeleteFoto(i){
             this.data.fotos.splice(i,1)
         },
-        onFotoChanged(files,align){
+        onFotoChanged(files,filedata){
             this.files=files
+            this.filedata=filedata
         },
         getFotoSrc(foto){
-            return '/img/fotos/'+this.fotos_class+'/'+foto.name
+            return '/img/fotos/'+this.foto_class_safe+'/'+foto.name
         }
     },
     computed:{
+        available_fotos:function(){
+            var fotos=this.data.fotos
+            if(undefined===fotos || !(fotos instanceof Array))return[]
+            var max=this.max_fotos_count
+            
+            return fotos.slice(0,max)
+        },
+        available_files:function(){
+            var files=this.filedata
+            if(undefined===files || !(files instanceof Array))return[]
+            var max=this.max_fotos_count-parseInt(this.available_fotos.length)
+            return files.slice(0,max)
+        },
+        foto_class_safe:function(){
+            var fc=this.fotos_class
+            if(!fc)fc='ico'
+            return fc
+        },
         text_box_class:function(){
             var res=this.data.tag?this.data.tag:'text'
             res+=this.edit_mode?' edited':''
@@ -147,7 +183,10 @@ module.exports = {
         },
         canadd:function(){
             return this.foto_count<this.max_fotos_count && this.is_fileadder_open && this.show_fileadder
-        }
+        },
+        max_fotos_count:function(){
+            return document.mag_start_data.foto[this.foto_class_safe].max_count
+        },
     },
     watch:{
         edit_mode:function(n,o){
@@ -172,21 +211,6 @@ div:empty::before {
     font-style: italic;
 }
 
-.h2,
-.text,
-.item,
-.foto{
-    position: relative;
-}
-
-.h2,
-.text{
-    padding: 0 4px;
-    cursor: pointer;
-}
-
-.item{
-}
 
 .pannel{
     overflow: hidden;
@@ -200,18 +224,6 @@ div[contenteditable='true']{
     position: relative;
     outline: none;
     background-color: #fff;
-}
-
-.h2.edited,
-.text.edited{
-    background-color: #fff;
-    /*padding-bottom: 4px;*/
-    cursor: text;
-    z-index: 2;
-}
-.foto.edited{
-    /*margin-top: 4px;*/
-    z-index: 3;
 }
 
 .back{
@@ -229,12 +241,7 @@ div[contenteditable='true']{
     width: 100%;
     opacity: 0.15;
     transition: opacity .2s ease;
-    z-index: 1;
-}
-
-
-.foto{
-    z-index: 1;
+    z-index: 2;
 }
 
 .tools{
@@ -242,7 +249,6 @@ div[contenteditable='true']{
     top: 0;
     right: 0;
     font-weight: normal;
-    z-index: 1;
 }
 .floating{
     top: -36px;
@@ -329,4 +335,30 @@ div[contenteditable='true']{
 .delete-item:hover{
     color: #C41300;
 }
+
+.adder .foto{
+    z-index: 1;
+}
+.adder .item.edited{
+    z-index: 3;
+    background-color: #fff;
+    border-top-right-radius: 0;
+}
+.adder .item,
+.adder .h1,
+.adder .h2,
+.adder .h3,
+.adder .h4,
+.adder .text{
+    cursor: pointer;
+}
+.adder .item{
+    padding: 4px 0;
+    border-radius: 10px;
+}
+.adder .item:not(.edited):hover{
+    box-shadow: 0 0 2px #888;
+}
+
+
 </style>

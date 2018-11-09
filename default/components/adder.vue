@@ -1,40 +1,45 @@
 <template>
     <div class="adder">
         <div class="head">
-            <h3>Создать публикацию</h3>
+            <h3 v-if="is_new">Создать публикацию</h3>
+            <h3 v-else>Редактировать публикацию</h3>
             <colorpeeker :curColor="backcolor" @color-choice="onColorChoice"></colorpeeker>
         </div>
 
         <div class="post"
             :style="{ 'background-color' : bgColor }">
 
-            <div class="post-title">
-                <span>Новая публикация</span>
-                <span>11:11 11.11.18</span>
+            <div class="post-title"
+                :class="{ 'status-new' : data.status=='new' }">
+                <span v-if="data.status=='new'">Новая публикация</span>
+                <span>{{ data.updated_at | date }}</span>
             </div>
 
-            <postitem v-for="(item,k) in items"
-                class="item"
+            <postitem v-for="(item,k) in data.items"
+                class="item-box"
                 :key="k"
                 :index="k"
-                :itemscount="items.length"
-                :class="item.align"
+                :itemscount="data.items.length"
+                :class="getItemClass(item)"
                 :data="item"
                 :canedit='true'
                 @deleted="onItemDeleted"
                 @editmodechanged="onEditmodeChanged"
                 @alignchanged="onAlignChanged"></postitem>
 
-            <span v-if="items.length<max_post_items_count"
+            <span v-if="data.items.length<max_post_items_count"
                 class="add-item-button" 
-                :class="{ disabled : disable_add }"
+                :class="{ disabled : edit_mode }"
                 @click="onAddItem" 
                 title="Добавить абзац">✚</span>
         </div>
 
         <div class="buttons">
-            <span class="button ok"
+            <span v-if="is_new" class="button ok"
                 @click.prevent="onSendClick">Создать</span>
+            <span v-else class="button ok"
+                @click.prevent="onSendClick">Сохранить</span>
+
             <span class="button cancel"
                 @click.stop="onCloseClick">Отменить</span>
         </div>
@@ -51,39 +56,42 @@ module.exports = {
             text1: '',
             text2: '',
             max_items_count: 3,
-            items: [
-                { align: 'center',tag: 'h2', text: 'Заголовок публикации' },
-                { align: 'center',tag: 'text',text: 'Очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации, очень длинный текст публикации...',fotos: [{name:'f1.jpg'},],fotos_class:'mini'}
-            ],
+            data: this.post,
             bgColorIndex: 0,
             bgColor: '#fff',
             maxLength: 200,
             foto_align: null,
-            disable_add: false
+            edit_mode: false
         }
     },
     props:{
         method:{
             type: String,
-            required: true
-        }
+            required: true,
+        },
+        post: Object        
     },
     methods: {
+        getItemClass:function(item){
+            var c=item.align
+            if(this.edit_mode)c+=' edited'
+            return c
+        },
         onAlignChanged(index,value){
-            var item=this.items[index]
+            var item=this.data.items[index]
             item.align=value
-            this.$set(this.items,index,item)
+            this.$set(this.data.items,index,item)
         },
         onEditmodeChanged(v){
-            this.disable_add=v
+            this.edit_mode=v
         },
         onAddItem(){
-            if(this.disable_add)return
-            this.items.splice(this.items.length,0,{align:'center',tag:'text',text:'',fotos_class:'mini'})
+            if(this.edit_mode)return
+            this.data.items.splice(this.data.items.length,0,{align:'center',tag:'text',text:'',fotos_class:'mini'})
         },
         onItemDeleted(key){
-            this.items.splice(key,1)
-            this.disable_add=false
+            this.data.items.splice(key,1)
+            this.edit_mode=false
         },
         onColorChoice(i,c){
             this.bgColorIndex=i
@@ -130,6 +138,9 @@ console.dir(responce.body)
         }
     },
     computed:{
+        is_new:function(){
+            return !this.data.updated_at
+        },
         max_post_items_count: function(){
             return document.mag_start_data.max_post_items_count
         },
@@ -142,6 +153,9 @@ console.dir(responce.body)
             return r
         }
     },
+    // mounted(){
+    //     console.dir(this.items)
+    // },
     components: {
         colorpeeker,
         postitem
@@ -180,29 +194,11 @@ console.dir(responce.body)
     color: #555;
 }
 
-.post{
+
+.fotos{
     display: flex;
-    flex-flow: column;
-    border-right: none;
-    border-left: none;
-    border-radius: 12px;
+    justify-content: center;
 }
-.post *{
-    /*display: flex;*/
-}
-.post-title{
-    margin: 2px 8px;
-}
-.post-title>span{
-    margin-left: 20px;
-}
-.post-title>span:first-child{
-    margin-left: 0;
-    font-style: italic;
-}
-
-
-.fotos,
 .foto{
     display: inline-flex;
 }
@@ -215,7 +211,7 @@ console.dir(responce.body)
 .foto img{
     border-radius: 12px;
 }
-.item{
+.item-box{
     display: block;
     text-align: center;
     margin-bottom: 12px;
@@ -233,20 +229,12 @@ console.dir(responce.body)
     margin-left: 10px;
     padding-right: 4px;
 }
-.h2{
-    font-size: 24px;
-    font-weight: bold;
-    color: #555;
-    text-align: center;
-}
-.text{
-    text-align: left;
-}
 
 .fotos.mini img{
     width: 300px;
     height: 300px;
 }
+.fotos img,
 .fotos.ico img{
     width: 84px;
     height: 84px;
