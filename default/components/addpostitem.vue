@@ -5,7 +5,7 @@
 
         <div class="item" :class="{ edited : edit_mode }" @click="onEditText">
 
-            <div v-if="data.fotos || is_fileadder_open"
+            <div v-if="data.tag=='text' && (data.fotos || is_fileadder_open)"
                 class="fotos"
                 :class="foto_class_safe">
 
@@ -40,9 +40,14 @@
             <span class="tools floating"
                 :class="{ tools_fixed : tools_fixed || edit_mode}">
 
-                <span class="tool ok" @click.stop="onOk" title="Применить изменение текста">✔</span>
+                <span class="tool-set tool ok" @click.stop="onOk" title="Применить изменение текста">✔</span>
 
-                <span class="tool-set" v-if="data.fotos || files.length>0">
+                <span class="tool-set">
+                    <span v-if="data.tag=='text'" class="tool ok" title="Увеличить шрифт" @click="data.tag='h2'">T</span>
+                    <span v-else class="tool ok" title="Уменьшить шрифт" @click="data.tag='text'">t</span>
+                </span>
+
+                <span class="tool-set" v-if="data.tag=='text' && (data.fotos || files.length>0)">
 
                     <span v-if="foto_class_safe!='mini'" class="tool foto" @click="setFotosClass('mini')" title="Увеличить размет фото">И</span>
                     <span v-if="foto_class_safe!='ico'" class="tool foto" @click="setFotosClass('ico')" title="Уменьшить размет фото">м</span>
@@ -52,10 +57,10 @@
                     <span class="tool ok" @click="onAlignChanged('right')" title="Фото справа">>></span>
                 </span>
 
-                <span v-if="show_add_button" class="tool ok" @click="onFileadderOpen" title="Добавить фото">+F</span>
-                <span v-if="show_fileadder && foto_count<max_fotos_count" class="tool ok" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
+                <span v-if="show_add_button" class="tool-set tool ok" @click="onFileadderOpen" title="Добавить фото">+F</span>
+                <span v-if="show_fileadder && foto_count<max_fotos_count" class="tool-set tool ok" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
 
-                <span v-if="edit_mode" class="tool cancel" @click.stop="onCancel" title="Отменить изменение текста">✘</span>
+                <span v-if="edit_mode" class="tool-set tool cancel" @click.stop="onCancel" title="Отменить изменение текста">✘</span>
             </span> 
 
             <span v-if="edit_mode" class="delete-item" @click="onDelete" title="Удалить весь абзац и фото">✘</span>
@@ -252,18 +257,21 @@ div[contenteditable='true']{
 }
 .floating{
     top: -36px;
-    right: -246px;
+    right: -350px;
     border-top-left-radius: 8px;
     padding: 2px;
     cursor: pointer;
-    transition: right 0.3s ease;
+    transition: right 1s ease;
 }
 .tools_fixed{
     right: 0;
     background-color: #fff;
 }
 .tool-set{
-    margin-left: 20px;
+    margin-right: 20px;
+}
+.tool-set:last-child{
+    margin-right: 0;
 }
 .tools,.tool-set{
     display: flex;
@@ -285,6 +293,9 @@ div[contenteditable='true']{
 .tools .tool:last-child{
     margin-right: 0;
 }
+.tools .tool:first-child{
+    margin-left: 0;
+}
 .tools .tool:hover{
     opacity: .9;
 }
@@ -302,7 +313,6 @@ div[contenteditable='true']{
 .tools .tool.cancel{
     color: #888;
     border-color: #888;
-    margin-left: 20px;
 }
 .tools .tool.delete{
     color: #888;
