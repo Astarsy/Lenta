@@ -112,4 +112,56 @@ module.exports = {
     margin-left: 20px;
 }
 
+
+
+.fotos{
+    display: flex;
+    justify-content: center;
+}
+.foto{
+    display: inline-flex;
+}
+.fotos div.foto{
+    margin-right: 6px;
+}
+.fotos div.foto:last-child{
+    margin-right: 0;
+}
+.foto img{
+    border-radius: 12px;
+}
+.item-box{
+    display: block;
+    text-align: center;
+    margin-bottom: 12px;
+}
+.stub{
+    clear: both;
+}
+.left .fotos{
+    float: left;
+    margin-right: 10px;
+    padding-left: 4px;
+}
+.left .text{
+    margin-right: 4px;
+}
+.right .fotos{
+    float: right;
+    margin-left: 10px;
+    padding-right: 4px;
+}
+.text{
+    margin-left: 8px;
+}
+
+.fotos.mini img{
+    width: 300px;
+    height: 300px;
+}
+.fotos img,
+.fotos.ico img{
+    width: 84px;
+    height: 84px;
+}
 </style>

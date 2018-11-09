@@ -1,7 +1,7 @@
 <template>
     <div>        
         
-        <div class="back" :class="{ active : edit_mode }"></div>
+        <div class="back" :class="{ active : edit_mode }" @click.stop="onOk"></div>
 
         <div class="item" :class="{ edited : edit_mode }" @click="onEditText">
 
@@ -58,14 +58,14 @@
                 <span v-if="edit_mode" class="tool cancel" @click.stop="onCancel" title="Отменить изменение текста">✘</span>
             </span> 
 
+            <span v-if="edit_mode" class="delete-item" @click="onDelete" title="Удалить весь абзац и фото">✘</span>
+
             <div :class="text_box_class">
 
                 <div :ref="ref"
                     placeholder="Напишите здесь что-нибудь интересное или добавьте фото!"
                     :contenteditable="edit_mode"
-                    v-html="data.text"></div>   
-
-                <span v-if="edit_mode" class="delete-item" @click="onDelete" title="Удалить весь абзац и фото">✘</span>
+                    v-html="data.text"></div>
             <div class="stub" style="clear: both;"></div>
             </div>
 
@@ -319,21 +319,23 @@ div[contenteditable='true']{
 .delete-item{
     position: absolute;
     top: -30px;
-    left: 0;
+    left: 12px;
     display: inline-flex;
     width: 30px;
     height: 30px;
     justify-content: center;
     align-items: center;
     font-size: 24px;
-    color: #9E6666;
+    color: #C41300;
     background-color: #fff;
     border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
     font-size: 18px;
     cursor: pointer;
+    opacity: .5;
 }
 .delete-item:hover{
-    color: #C41300;
+    opacity: 1;
 }
 
 .adder .foto{

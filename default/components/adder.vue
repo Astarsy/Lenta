@@ -194,52 +194,6 @@ console.dir(responce.body)
     color: #555;
 }
 
-
-.fotos{
-    display: flex;
-    justify-content: center;
-}
-.foto{
-    display: inline-flex;
-}
-.fotos div.foto{
-    margin-right: 6px;
-}
-.fotos div.foto:last-child{
-    margin-right: 0;
-}
-.foto img{
-    border-radius: 12px;
-}
-.item-box{
-    display: block;
-    text-align: center;
-    margin-bottom: 12px;
-}
-.stub{
-    clear: both;
-}
-.left .fotos{
-    float: left;
-    margin-right: 10px;
-    padding-left: 4px;
-}
-.right .fotos{
-    float: right;
-    margin-left: 10px;
-    padding-right: 4px;
-}
-
-.fotos.mini img{
-    width: 300px;
-    height: 300px;
-}
-.fotos img,
-.fotos.ico img{
-    width: 84px;
-    height: 84px;
-}
-
 .buttons{
     display: inline-block;
     margin: 4px 8px;
