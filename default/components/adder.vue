@@ -69,11 +69,39 @@ module.exports = {
     },
     methods: {
         onSendClick: function(){
+            var items=[]
+            var files=[]
             Object.entries(this.$refs).forEach(entry=>{
                 var k=entry[0]
-                var v=entry[1]
-console.dir(v[0].data)
+                var item_data=entry[1][0].data
+                var item={
+                    text: item_data.text,
+                    tag: item_data.tag,                    
+                }
+
+                if(item_data.fotos){
+                    item.fotos=[]
+                    for(var i=0;i<item_data.fotos.length;i++){
+                        var foto=item_data.fotos[i]
+                        item.fotos.push(foto.name)
+                    }
+                }
+
+                if(item_data.files){
+                    item.files=[]
+                    for(var i=0;i<item_data.files.length;i++){
+                        var file=item_data.files[i]
+                        item.files.push(file.name)
+                        files.push(file)
+                    }
+
+                }
+
+                items.push(item)
             })
+
+console.dir(items)
+
             // this.postPost()
         },
         getItemClass:function(item){
@@ -114,15 +142,16 @@ console.dir(v[0].data)
             console.dir(items)
 
             return
-            // data.append('bgci',this.bgColorIndex)
 
-            // for(var i=0;i<this.files.length;i++){
-            //     data.append('userFiles[]',this.files[i])
-            //     // индекс соответствия файла итему
-            //     data.append('itemOfFile[]',0)
-            //     // и класс файла
-            //     data.append('classOfFile[]','ico')
-            // }
+            data.append('bgci',this.bgColorIndex)
+
+            for(var i=0;i<this.files.length;i++){
+                data.append('userFiles[]',this.files[i])
+                // индекс соответствия файла итему
+                data.append('itemOfFile[]',0)
+                // и класс файла
+                data.append('classOfFile[]','ico')
+            }
 
 // console.dir(this.method)
             this.$http.post(window.location.origin+this.method,data).then(function(responce){

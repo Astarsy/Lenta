@@ -30,7 +30,7 @@
                 <fileadder v-if="is_fileadder_open"
                     ref='fileadder'
                     :key="index"
-                    :canadd="canadd"
+                    :canadd="canadd()"
                     :editmode="edit_mode"
                     @changed="onFotoChanged"></fileadder>
 
@@ -58,7 +58,7 @@
                 </span>
  
                 <span v-if="show_add_button" class="tool-set tool ok" @click="onFileadderOpen" title="Добавить фото">+F</span>
-                <span v-if="show_fileadder && foto_count<max_fotos_count" class="tool-set tool ok" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
+                <span v-if="show_fileadder && foto_count()<max_fotos_count" class="tool-set tool ok" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
 
                 <span v-if="edit_mode" class="tool-set tool cancel" @click.stop="onCancel" title="Отменить изменение текста">✘</span>
             </span> 
@@ -158,6 +158,8 @@ module.exports = {
             this.data.filedata=filedata
 
             this.$forceUpdate()
+
+            console.log('Force Update')
         },
         getFotoSrc(foto){
             return '/img/fotos/'+this.foto_class_safe+'/'+foto.name
@@ -189,6 +191,15 @@ module.exports = {
             var max=this.max_fotos_count-parseInt(this.available_fotos.length)
             return files.slice(0,max)
         },
+        canadd:function(){
+            console.log('f_c='+this.foto_count())
+            return this.foto_count()<this.max_fotos_count && this.is_fileadder_open && this.show_fileadder
+        },
+        foto_count:function(){
+            var count=this.data.files?this.data.files.length:0
+            if(undefined!=this.data.fotos)count+=this.data.fotos.length
+            return count
+        },
     },
     computed:{
         foto_class_safe:function(){
@@ -205,18 +216,10 @@ module.exports = {
             return 'focus_'+this.index
         },
         show_add_button:function(){
-            return this.item.tag=='text' && !this.show_fileadder && this.foto_count<this.max_fotos_count
+            return this.item.tag=='text' && !this.show_fileadder && this.foto_count()<this.max_fotos_count
         },
         is_fileadder_open: function(){
             return this.item.tag==='text' && ((this.data.files && this.data.files.length>0) || this.show_fileadder)
-        },
-        foto_count:function(){
-            var count=this.data.files?this.data.files.length:0
-            if(undefined!=this.data.fotos)count+=this.data.fotos.length
-            return count
-        },
-        canadd:function(){
-            return this.foto_count<this.max_fotos_count && this.is_fileadder_open && this.show_fileadder
         },
         max_fotos_count:function(){
             return document.mag_start_data.foto[this.foto_class_safe].max_count
