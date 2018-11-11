@@ -158,8 +158,6 @@ module.exports = {
             this.data.filedata=filedata
 
             this.$forceUpdate()
-
-            console.log('Force Update')
         },
         getFotoSrc(foto){
             return '/img/fotos/'+this.foto_class_safe+'/'+foto.name
@@ -192,7 +190,6 @@ module.exports = {
             return files.slice(0,max)
         },
         canadd:function(){
-            console.log('f_c='+this.foto_count())
             return this.foto_count()<this.max_fotos_count && this.is_fileadder_open && this.show_fileadder
         },
         foto_count:function(){

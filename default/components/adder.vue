@@ -101,6 +101,7 @@ module.exports = {
             })
 
 console.dir(items)
+console.dir(files)
 
             // this.postPost()
         },
