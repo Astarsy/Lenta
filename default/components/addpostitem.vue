@@ -1,15 +1,15 @@
 <template>
-    <div>        
-        
+    <div>      
         <div class="back" :class="{ active : edit_mode }" @click.stop="onOk"></div>
-
+  
+        
         <div class="item" :class="{ edited : edit_mode }" @click="onEditText">
 
             <div v-if="data.tag=='text' && (data.fotos || is_fileadder_open)"
                 class="fotos"
                 :class="foto_class_safe">
 
-                <div v-for="(foto,i) in available_fotos"
+                <div v-for="(foto,i) in available_fotos()"
                     class="foto"
                     :class="{ edited : edit_mode}">
                     <img :src="getFotoSrc(foto)">
@@ -18,7 +18,7 @@
                     </span>
                 </div>
 
-                <div v-for="(i,index) in available_files"
+                <div v-for="(i,index) in available_files()"
                     class="foto"
                     :class="{ edited : editmode }">
                     <img :src="i.image">
@@ -47,7 +47,7 @@
                     <span v-else class="tool ok" title="Уменьшить шрифт" @click="data.tag='text'">t</span>
                 </span>
 
-                <span class="tool-set" v-if="data.tag=='text' && (data.fotos || files.length>0)">
+                <span class="tool-set" v-if="data.tag=='text' && (data.fotos || (data.files && data.files.length>0))">
 
                     <span v-if="foto_class_safe!='mini'" class="tool foto" @click="setFotosClass('mini')" title="Увеличить размет фото">И</span>
                     <span v-if="foto_class_safe!='ico'" class="tool foto" @click="setFotosClass('ico')" title="Уменьшить размет фото">м</span>
@@ -56,7 +56,7 @@
                     <span class="tool ok" @click="onAlignChanged('center')" title="Фото по центру">--</span>
                     <span class="tool ok" @click="onAlignChanged('right')" title="Фото справа">>></span>
                 </span>
-
+ 
                 <span v-if="show_add_button" class="tool-set tool ok" @click="onFileadderOpen" title="Добавить фото">+F</span>
                 <span v-if="show_fileadder && foto_count<max_fotos_count" class="tool-set tool ok" @click="onFileadderClose" title="Скрыть выбор фото">-F</span>
 
@@ -65,13 +65,17 @@
 
             <span v-if="edit_mode" class="delete-item" @click="onDelete" title="Удалить весь абзац и фото">✘</span>
 
-            <div :class="text_box_class">
+            <span v-if="edit_mode" class="counter"
+                :title="counter.title"
+                :class="counter.class">{{ counter.text }}</span>
 
+            <div :class="text_box_class">
                 <div :ref="ref"
                     placeholder="Напишите здесь что-нибудь интересное или добавьте фото!"
                     :contenteditable="edit_mode"
-                    v-html="data.text"></div>
-            <div class="stub" style="clear: both;"></div>
+                    @input="onInput"
+                    v-html="item.text"></div>
+                <div class="stub" style="clear: both;"></div>
             </div>
 
         </div>
@@ -85,17 +89,20 @@ var fileadder=require('./file_adder.vue')
 module.exports = {
     data: function(){
         return{
+            counter: {  text: document.mag_start_data.max_post_item_text_length,
+                        class: '',
+                        title: 'Максимальная длина текста -'+document.mag_start_data.max_post_item_text_length+'  знаков'
+                    },
             edit_mode: false,
             show_fileadder: false,
-            files: [],
-            filedata: [],
-            fotos_class: this.data.fotos_class, // не использовать, использовать foto_class_safe
-            tools_fixed: false
+            tools_fixed: false,
+
+            data: this.$root.deepCopy(this.item)
         }
     },
     props:{
         index: Number,
-        data: Object,
+        item: Object,
         itemscount: Number,
         canedit: {
             type: Boolean,
@@ -104,7 +111,7 @@ module.exports = {
     },
     methods: {
         setFotosClass(v){
-            this.fotos_class=v
+            this.data.fotos_class=v
         },
         onAlignChanged(value){
             this.$emit('alignchanged',this.index,value)
@@ -121,12 +128,18 @@ module.exports = {
         onOk(){
             this.edit_mode=false
             this.show_fileadder=false
-
-            var content=this.$refs[this.ref].innerText
+            this.data.text=this.$refs[this.ref].innerText
+        },
+        onInput(){
+            this.setCounter()
         },
         onCancel(){
             this.edit_mode=false
-            this.$refs[this.ref].innerText=this.data.text
+            this.$refs[this.ref].innerText=this.item.text
+            this.data.files=[]
+            this.data.filedata=[]
+            this.show_fileadder=false
+            this.data=this.$root.deepCopy(this.item)
         },
         onDelete(){
             this.$emit('deleted',this.index)
@@ -141,29 +154,45 @@ module.exports = {
             this.data.fotos.splice(i,1)
         },
         onFotoChanged(files,filedata){
-            this.files=files
-            this.filedata=filedata
+            this.data.files=files
+            this.data.filedata=filedata
+
+            this.$forceUpdate()
         },
         getFotoSrc(foto){
             return '/img/fotos/'+this.foto_class_safe+'/'+foto.name
-        }
-    },
-    computed:{
+        },
+        setCounter(){
+            var max_length=document.mag_start_data.max_post_item_text_length
+            if(undefined===this.$refs[this.ref])return max_length
+            var text=this.$refs[this.ref].innerText
+            var r=max_length-text.length
+            if(r<0){
+                this.counter.title='Сообщение слишком длинное! Последние '+(-r)+' знаков будут потеряны!'
+                this.counter.class='danger'
+            }else{
+                this.counter.title='Длина сообщения '+text.length
+                this.counter.class=''
+            }
+            this.counter.text=r
+        },
         available_fotos:function(){
             var fotos=this.data.fotos
             if(undefined===fotos || !(fotos instanceof Array))return[]
             var max=this.max_fotos_count
-            
-            return fotos.slice(0,max)
+            var res=fotos.slice(0,max)
+            return res
         },
         available_files:function(){
-            var files=this.filedata
+            var files=this.data.filedata
             if(undefined===files || !(files instanceof Array))return[]
             var max=this.max_fotos_count-parseInt(this.available_fotos.length)
             return files.slice(0,max)
         },
+    },
+    computed:{
         foto_class_safe:function(){
-            var fc=this.fotos_class
+            var fc=this.data.fotos_class
             if(!fc)fc='ico'
             return fc
         },
@@ -176,13 +205,13 @@ module.exports = {
             return 'focus_'+this.index
         },
         show_add_button:function(){
-            return this.data.tag=='text' && !this.show_fileadder && this.foto_count<this.max_fotos_count
+            return this.item.tag=='text' && !this.show_fileadder && this.foto_count<this.max_fotos_count
         },
         is_fileadder_open: function(){
-            return this.data.tag==='text' && (this.files.length>0 || this.show_fileadder)
+            return this.item.tag==='text' && ((this.data.files && this.data.files.length>0) || this.show_fileadder)
         },
         foto_count:function(){
-            var count=this.files.length
+            var count=this.data.files?this.data.files.length:0
             if(undefined!=this.data.fotos)count+=this.data.fotos.length
             return count
         },
@@ -199,7 +228,7 @@ module.exports = {
         }
     },
     mounted(){
-        if(this.index===this.itemscount-1 && this.data.text==''){
+        if(this.index===this.itemscount-1 && this.item.text==''){
             this.edit_mode=this.canedit
             this.focus()
         }
@@ -221,18 +250,12 @@ div:empty::before {
     overflow: hidden;
 }
 
-.h2[contenteditable='true'],
-.text[contenteditable='true']{
-    background-color: #fff;
-}
 div[contenteditable='true']{
     position: relative;
     outline: none;
-    background-color: #fff;
 }
 
 .back{
-    /*display: flex;*/
     position: fixed;
     top: 0;
     left: 0;
@@ -240,12 +263,12 @@ div[contenteditable='true']{
     height: 100%;
     background: #000;
     opacity: 0;
-    transition: opacity .2s ease,width 0s ease .2s;
+    transition: opacity .3s ease,width 0s ease .3s;
 }
 .back.active{
     width: 100%;
     opacity: 0.15;
-    transition: opacity .2s ease;
+    transition: opacity .3s ease;
     z-index: 2;
 }
 
@@ -259,9 +282,10 @@ div[contenteditable='true']{
     top: -36px;
     right: -350px;
     border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
     padding: 2px;
     cursor: pointer;
-    transition: right 1s ease;
+    transition: right .5s ease;
 }
 .tools_fixed{
     right: 0;
@@ -372,5 +396,30 @@ div[contenteditable='true']{
     box-shadow: 0 0 2px #888;
 }
 
+.text.edited{
+    cursor: text;
+}
+
+.counter{
+    display: flex;
+    width: 32px;
+    height: 24px;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    bottom: -24px;
+    right: 12px;
+    font-size: 16px;
+    color: #00AA17;
+    background-color: #fff;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    cursor: default;
+}
+.counter.danger{
+    color: red;
+    font-weight: bold;
+}
 
 </style>

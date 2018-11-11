@@ -21,6 +21,22 @@ Vue.filter('date',function(val){
 var main=require('./components/main.vue')
 
 new Vue({
+    mixins:[
+    {
+        methods:{
+            deepCopy(oldObj) {
+                var newObj = oldObj;
+                if (oldObj && typeof oldObj === 'object') {
+                    newObj = Object.prototype.toString.call(oldObj) === "[object Array]" ? [] : {};
+                    for (var i in oldObj) {
+                        newObj[i] = this.deepCopy(oldObj[i]);
+                    }
+                }
+                return newObj;
+            }
+        }
+    }
+    ],
     el:'#_lent_',
     render: (h) => h(main)
 })

@@ -216,22 +216,22 @@ module.exports={
             this.request()
         },
         parsePosts(posts){
-            for(var i=0;i<posts.length;i++){
-                for(var j=0;j<posts[i]['items'].length;j++){                    
-                    var item=posts[i]['items'][j]
-                    for(var n=0;n<item.fotos.length;n++){
-                        var foto=item.fotos[n]
-                        foto.src='/img/fotos/'+foto.class+'/'+foto.name
-                    }
-                    if(item.tag){
-                        item.o_tag='<'+item.tag+'>'
-                        item.c_tag='</'+item.tag+'>'
-                        item.html='<'+item.tag+'>'+item.text+'</'+item.tag+'>'
-                    }else{
-                        item.html=item.text
-                    }
-                }
-            }
+            // for(var i=0;i<posts.length;i++){
+            //     for(var j=0;j<posts[i]['items'].length;j++){                    
+            //         var item=posts[i]['items'][j]
+            //         for(var n=0;n<item.fotos.length;n++){
+            //             var foto=item.fotos[n]
+            //             foto.src='/img/fotos/'+foto.class+'/'+foto.name
+            //         }
+            //         if(item.tag){
+            //             item.o_tag='<'+item.tag+'>'
+            //             item.c_tag='</'+item.tag+'>'
+            //             item.html='<'+item.tag+'>'+item.text+'</'+item.tag+'>'
+            //         }else{
+            //             item.html=item.text
+            //         }
+            //     }
+            // }
             return posts
         },
     },

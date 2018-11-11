@@ -13,31 +13,17 @@ module.exports = {
     data: function(){
         return{
             colors: document.mag_start_data.colors,
-            cur: 0
+            cur: this.bgci
         }
     },
     props:{
-        curColor: {
-            type: String,
-            default: '#fff'
-        }
+        bgci: 0
     },
     methods: {
-        getIndex(color){
-            for(var i=0;i<this.colors.length;i++){
-                if(this.colors[i]==color){
-                    return i
-                }
-                return 0
-            }
-        },
         onChoiceClick: function(i){
             this.cur=i
-            this.$emit('color-choice',this.cur,this.colors[i])
+            this.$emit('color-choice',i)
         }
-    },
-    created(){
-        this.cur=this.getIndex(this.curColor)
     }
 }
 </script>

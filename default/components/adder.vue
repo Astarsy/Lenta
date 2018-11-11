@@ -3,11 +3,11 @@
         <div class="head">
             <h3 v-if="is_new">Создать публикацию</h3>
             <h3 v-else>Редактировать публикацию</h3>
-            <colorpeeker :curColor="backcolor" @color-choice="onColorChoice"></colorpeeker>
+            <colorpeeker :bgci="bgci" @color-choice="onColorChoice"></colorpeeker>
         </div>
 
         <div class="post"
-            :style="{ 'background-color' : bgColor }">
+            :style="{ 'background-color' : bg_color }">
 
             <div class="post-title"
                 :class="{ 'status-new' : data.status=='new' }">
@@ -15,19 +15,20 @@
                 <span>{{ data.updated_at | date }}</span>
             </div>
 
-            <postitem v-for="(item,k) in data.items"
+            <postitem v-for="(item,k) in items"
                 class="item-box"
+                :ref="'item_'+k"
                 :key="k"
                 :index="k"
-                :itemscount="data.items.length"
+                :itemscount="items.length"
                 :class="getItemClass(item)"
-                :data="item"
+                :item="item"
                 :canedit='true'
                 @deleted="onItemDeleted"
                 @editmodechanged="onEditmodeChanged"
                 @alignchanged="onAlignChanged"></postitem>
 
-            <span v-if="data.items.length<max_post_items_count"
+            <span v-if="items.length<max_post_items_count"
                 class="add-item-button" 
                 :class="{ disabled : edit_mode }"
                 @click="onAddItem" 
@@ -36,12 +37,11 @@
 
         <div class="buttons">
             <span v-if="is_new" class="button ok"
-                @click.prevent="onSendClick">Создать</span>
+                @click="onSendClick">Создать</span>
             <span v-else class="button ok"
-                @click.prevent="onSendClick">Сохранить</span>
-
+                @click="onSendClick">Сохранить</span>
             <span class="button cancel"
-                @click.stop="onCloseClick">Отменить</span>
+                @click="onCloseClick">Отменить</span>
         </div>
 
     </div>
@@ -53,14 +53,10 @@ var postitem=require('./addpostitem.vue')
 module.exports = {
     data: function(){
         return{         
-            text1: '',
-            text2: '',
             max_items_count: 3,
+            items: this.$root.deepCopy(this.post.items),
             data: this.post,
-            bgColorIndex: 0,
-            bgColor: '#fff',
-            maxLength: 200,
-            foto_align: null,
+            bgci: this.post.bgci,
             edit_mode: false
         }
     },
@@ -72,52 +68,61 @@ module.exports = {
         post: Object        
     },
     methods: {
+        onSendClick: function(){
+            Object.entries(this.$refs).forEach(entry=>{
+                var k=entry[0]
+                var v=entry[1]
+console.dir(v[0].data)
+            })
+            // this.postPost()
+        },
         getItemClass:function(item){
             var c=item.align
             if(this.edit_mode)c+=' edited'
             return c
         },
         onAlignChanged(index,value){
-            var item=this.data.items[index]
+            var item=this.items[index]
             item.align=value
-            this.$set(this.data.items,index,item)
+            this.$set(this.items,index,item)
         },
         onEditmodeChanged(v){
             this.edit_mode=v
         },
         onAddItem(){
             if(this.edit_mode)return
-            this.data.items.splice(this.data.items.length,0,{align:'center',tag:'text',text:'',fotos_class:'mini'})
+            this.items.splice(this.items.length,0,
+                    {align:'center',tag:'text',text:'',fotos:[], fotos_class:'mini'}
+                )
         },
         onItemDeleted(key){
-            this.data.items.splice(key,1)
+            this.items.splice(key,1)
             this.edit_mode=false
         },
-        onColorChoice(i,c){
-            this.bgColorIndex=i
-            this.bgColor=c
+        onColorChoice(i){
+            this.bgci=i
         },
-        postMessage(text){
-            this.message=this.message.trim().substr(0,this.maxLength)
-            if(this.message.length<1)return
+        postPost(){
             var data=new FormData()
-            if(this.id)data.append('id',this.id)
-            // резерв на случай с несколькими items и tags
-            var items=[this.message,]
-            var tags=['',]
+            data.append('id',this.id)
+
+            var items=this.items
             for(var i=0;i<items.length;i++){
                 data.append('items[]',items[i])
-                data.append('tags[]',tags[i])
             }
-            data.append('bgci',this.bgColorIndex)
 
-            for(var i=0;i<this.files.length;i++){
-                data.append('userFiles[]',this.files[i])
-                // индекс соответствия файла итему
-                data.append('itemOfFile[]',0)
-                // и класс файла
-                data.append('classOfFile[]','ico')
-            }
+            console.dir(items)
+
+            return
+            // data.append('bgci',this.bgColorIndex)
+
+            // for(var i=0;i<this.files.length;i++){
+            //     data.append('userFiles[]',this.files[i])
+            //     // индекс соответствия файла итему
+            //     data.append('itemOfFile[]',0)
+            //     // и класс файла
+            //     data.append('classOfFile[]','ico')
+            // }
 
 // console.dir(this.method)
             this.$http.post(window.location.origin+this.method,data).then(function(responce){
@@ -130,32 +135,21 @@ return
 console.dir(responce.body)
                 })
         },
-        onSendClick: function(){
-            this.postMessage(this.message)
-        },
         onCloseClick: function(){
             this.$emit('adder-close')
         }
     },
     computed:{
+        bg_color:function(){
+            return document.mag_start_data.colors[this.bgci]
+        },
         is_new:function(){
             return !this.data.updated_at
         },
         max_post_items_count: function(){
             return document.mag_start_data.max_post_items_count
-        },
-        placeholder: function (){
-            return "Напишите сообщение (не более "+ this.maxLength +" знаков)"
-        },
-        counter: function (){
-            var r=this.maxLength-this.message.length
-            if(r<0)r='Сообщение слишком длинное! Последние '+(-r)+' знаков будут потеряны!'
-            return r
         }
     },
-    // mounted(){
-    //     console.dir(this.items)
-    // },
     components: {
         colorpeeker,
         postitem
