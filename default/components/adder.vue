@@ -52,6 +52,7 @@ var colorpeeker=require('./colorpeeker.vue')
 var postitem=require('./addpostitem.vue')
 module.exports = {
     data: function(){
+// console.dir(this.post)
         return{         
             max_items_count: 3,
             items: this.$root.deepCopy(this.post.items),
@@ -71,19 +72,26 @@ module.exports = {
         onSendClick: function(){
             var items=[]
             var files=[]
+            var item_of_file=[]
+            var item_counter=0
             Object.entries(this.$refs).forEach(entry=>{
                 var k=entry[0]
                 var item_data=entry[1][0].data
                 var item={
+                    id: item_data.id,
                     text: item_data.text,
-                    tag: item_data.tag,                    
+                    tag: item_data.tag,
+                    fotos_class: item_data.fotos_class,
+                    fotos_align: item_data.align
                 }
 
                 if(item_data.fotos){
                     item.fotos=[]
+                    item.foto_ids=[]
                     for(var i=0;i<item_data.fotos.length;i++){
                         var foto=item_data.fotos[i]
                         item.fotos.push(foto.name)
+                        item.foto_ids.push(foto.id)
                     }
                 }
 
@@ -93,17 +101,23 @@ module.exports = {
                         var file=item_data.files[i]
                         item.files.push(file.name)
                         files.push(file)
+                        item_of_file.push(item_counter)
                     }
 
                 }
 
                 items.push(item)
+                item_counter++;
             })
 
-console.dir(items)
-console.dir(files)
+            var post={
+                id: this.post.id,
+                bgci: this.bgci,
+                items: items,
+                item_of_file: item_of_file
+            }
 
-            // this.postPost()
+            this.postPost(post,files)
         },
         getItemClass:function(item){
             var c=item.align
@@ -131,27 +145,12 @@ console.dir(files)
         onColorChoice(i){
             this.bgci=i
         },
-        postPost(){
+        postPost(post,files){
             var data=new FormData()
-            data.append('id',this.id)
+            data.append('data',JSON.stringify(post));
 
-            var items=this.items
-            for(var i=0;i<items.length;i++){
-                data.append('items[]',items[i])
-            }
-
-            console.dir(items)
-
-            return
-
-            data.append('bgci',this.bgColorIndex)
-
-            for(var i=0;i<this.files.length;i++){
-                data.append('userFiles[]',this.files[i])
-                // индекс соответствия файла итему
-                data.append('itemOfFile[]',0)
-                // и класс файла
-                data.append('classOfFile[]','ico')
+            for(var i=0;i<files.length;i++){
+                data.append('userFiles[]',files[i])
             }
 
 // console.dir(this.method)

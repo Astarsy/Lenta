@@ -14,7 +14,8 @@ Vue.filter('date',function(val){
         if (yy < 10) yy = '0' + yy
         var hh=date.getHours()
         var ii=date.getMinutes()
-        return hh+':'+ii+' '+dd + '.' + mm + '.' + yy
+        if (ii < 10) ii = '0' + ii
+        return dd + '.' + mm + '.' + yy + ' в '+hh+':'+ii
     }
 })
 

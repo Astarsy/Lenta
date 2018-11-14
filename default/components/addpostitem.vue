@@ -1,7 +1,6 @@
 <template>
     <div>      
         <div class="back" :class="{ active : edit_mode }" @click.stop="onOk"></div>
-  
         
         <div class="item" :class="{ edited : edit_mode }" @click="onEditText">
 
@@ -264,6 +263,7 @@ div[contenteditable='true']{
     background: #000;
     opacity: 0;
     transition: opacity .3s ease,width 0s ease .3s;
+    z-index: 2;
 }
 .back.active{
     width: 100%;
@@ -388,7 +388,7 @@ div[contenteditable='true']{
 .adder .text{
     cursor: pointer;
 }
-.adder .item{
+.item{
     padding: 4px 0;
     border-radius: 10px;
 }

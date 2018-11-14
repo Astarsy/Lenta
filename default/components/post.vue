@@ -16,20 +16,38 @@
         </div>
 
         <div v-for="item in data.items"
-            class="item"
-            :class="item.align">
-            <div v-if="item.fotos"
-                class="fotos"
-                :class="fotos_class">
+            class="item_box"            
+            :class="item.fotos_align">
 
-                <div v-for="(foto,i) in item.fotos"
-                    class="foto">
-                    <img :src="getFotoSrc(item,foto)">
+            <div class="item">
+
+                <div class="fotos"
+                    :class="foto_class_safe(item)">
+
+                    <div v-for="foto in item.fotos" class="foto">
+                        <img :src="getFotoSrc(item,foto)">
+                    </div>
+
                 </div>
+
+                <div :class="text_box_class(item)">
+                    <div v-html="item.text"></div>
+                    <div class="stub" style="clear: both;"></div>
+                </div>
+
+    <!--             <div v-if="item.fotos"
+                    class="fotos"
+                    :class="fotos_class">
+
+                    <div v-for="(foto,i) in item.fotos"
+                        class="foto">
+                        <img :src="getFotoSrc(item,foto)">
+                    </div>
+                </div>
+
+                <div :class="item.tag">{{ item.text }}</div> -->
+
             </div>
-
-            <div :class="item.tag">{{ item.text }}</div>
-
         </div>
 
         <div v-if="canedit"
@@ -55,6 +73,15 @@ module.exports = {
         }
     },
     methods: {
+        text_box_class:function(item){
+            var res=item.tag?item.tag:'text'
+            return res
+        },
+        foto_class_safe:function(item){
+            var fc=item.fotos_class
+            if(!fc)fc='ico'
+            return fc
+        },
         getFotoSrc(item,foto){
             var fc=item.fotos_class
             if(!fc)fc='ico'
