@@ -81,29 +81,9 @@ module.exports = {
             this.message=null
         },
         onDelete(){
-            if(!this.data.id)return
-
-            var data=new FormData()
-            data.append('id',this.data.id);
-
-            this.$http.post(window.location.origin+"/api/del",data).then(function(responce){
-console.dir(responce.body)
-                    this.message={
-                        style: 'ok',
-                        type: 'info',
-                        text: responce.body
-                    }
-                },
-                function(responce){
-console.dir(responce.body)
-                    this.message={
-                        style: 'danger',
-                        type: 'info',
-                        text: responce.body
-                    }
-                })
-
-            // this.$emit('adder-close')
+            if(this.data.id){
+                this.$emit('delete',this.data.id)
+            }
         },
         onItemsChanged(){
             this.can_save=this.countItems()>0
@@ -132,59 +112,51 @@ console.dir(responce.body)
                     && (!item_body.fotos || item_body.fotos.length==0)
                     &&(!item_body.files || item_body.files.length==0))return
 
-
                 var k=entry[0]
                 var item_data=entry[1][0].data
-                var item={
-                    id: item_data.id,
-                    text: item_data.text,
-                    tag: item_data.tag,
-                    fotos_class: item_data.fotos_class,
-                    fotos_align: item_data.align
-                }
 
                 if(item_data.fotos){
-                    item.fotos=[]
-                    item.foto_ids=[]
+                    item_data.foto_names=[]
+                    item_data.foto_ids=[]
                     for(var i=0;i<item_data.fotos.length;i++){
                         var foto=item_data.fotos[i]
-                        item.fotos.push(foto.name)
-                        item.foto_ids.push(foto.id)
+                        item_data.foto_names.push(foto.name)
+                        item_data.foto_ids.push(foto.id)
                     }
                 }
 
                 if(item_data.files){
-                    item.files=[]
+                    item_data.files=[]
                     for(var i=0;i<item_data.files.length;i++){
                         var file=item_data.files[i]
-                        item.files.push(file.name)
+                        item_data.files.push(file.name)
                         files.push(file)
                         item_of_file.push(item_counter)
                     }
 
                 }
 
-                items.push(item)
+                items.push(item_data)
                 item_counter++;
             })
 
-            var post={
+            var post_to_send={
                 id: this.post.id,
                 bgci: this.data.bgci,
                 items: items,
                 item_of_file: item_of_file
             }
 
-            this.postPost(post,files)
+            this.postPost(post_to_send,files)
         },
         getItemClass:function(item){
-            var c=item.align
+            var c=item.fotos_align
             if(this.edit_mode)c+=' edited'
             return c
         },
         onAlignChanged(index,value){
             var item=this.data.items[index]
-            item.align=value
+            item.fotos_align=value
             this.$set(this.data.items,index,item)
         },
         onEditmodeChanged(v){
@@ -193,7 +165,7 @@ console.dir(responce.body)
         onAddItem(){
             if(this.edit_mode)return
             this.data.items.splice(this.data.items.length,0,
-                    {align:'center',tag:'text',text:'',fotos:[], fotos_class:'mini'}
+                    {fotos_align:'center',tag:'text',text:'',fotos:[], fotos_class:'mini'}
                 )
         },
         onColorChoice(i){
@@ -209,13 +181,15 @@ console.dir(responce.body)
 
 // console.dir(this.method)
             this.$http.post(window.location.origin+"/api/add",data).then(function(responce){
-console.dir(responce.body)
-return
-                    this.message=responce.data.text
-                    this.$emit('message-setn',responce.data)
+// console.dir(responce.data)
+                    if(undefined==post.id){
+                        post.id=responce.data
+                        post.is_new=true
+                    }
+                    this.$emit('message-setn',post)
                 },
                 function(responce){
-console.dir(responce.body)
+// console.dir(responce.body)
                 })
         },
         onCloseClick: function(){

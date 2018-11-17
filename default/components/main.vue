@@ -92,6 +92,7 @@ module.exports = {
     justify-content: center;
     align-items: center;
     font-size: 18px;
+    background-color: #fff;
     border: 1px solid #aaa;
     border-radius: 10px;
     color: #666;

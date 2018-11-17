@@ -5,6 +5,7 @@
             v-if="message"
             :parent="this"
             :message="message"
+            @confirmed="onConfirmPostDel"
             @closed="onFlashMessageClosed"></flashmessage>
 
         <div class="button ok"
@@ -13,6 +14,7 @@
 
         <adder v-if="adding_mode"
             :post="edited_post"
+            @delete="onPostDelClick"
             @message-setn="onMessageSent"
             @adder-close="closeAdder"></adder>
 
@@ -55,82 +57,46 @@ module.exports={
             post.message=null
             this.updatePost(post)
         },
-        // onItemEdit(post,item){
-        //     item.edit_mode=true
-        //     this.updatePost(post)
-        // },
-        // onItemEditOk(post,item){
-        //     var data=new FormData()
-        //     data.append('iid',item.id)
-        //     data.append('text',item.text)
-        //     this.$http.post(window.location.origin+"/api/edititem",data).then(
-
-        //         function(responce){
-        //             post.message={
-        //                 style: 'ok',
-        //                 type: 'info',
-        //                 text: 'Готово!'
-        //             }
-        //             item.edit_mode=false
-        //             item=this.setItemHtml(item)
-        //             this.updatePost(post)
-        //         },
-
-        //         function(responce){
-        //             post.message={
-        //                 style: 'danger',
-        //                 type: 'info',
-        //                 text: responce.body
-        //             }
-        //             this.updatePost(post)
-        //         })
-        // },
-        // onItemEditCancel(post,item){
-        //     item.edit_mode=false
-        //     this.updatePost(post)            
-        // },
-        delPost(post){
-            // Послать запрос на удаление поста и,
-            // если Ok - optimistic delete
+        deletePost(pid){
             var data=new FormData()
-            data.append('id',post.id)
-            this.$http.post(window.location.origin+"/api/delete",data).then(
+            data.append('id',pid);
 
-                function(responce){
-                    var i=this.getPostIndexById(post.id)
-                    if(null!==i)this.posts.splice(i,1)
+            this.$http.post(window.location.origin+"/api/del",data).then(function(responce){
+// console.dir(responce.body)
                     this.message={
                         style: 'ok',
                         type: 'info',
-                        text: 'Готово!'
+                        text: responce.body
                     }
-                    this.updatePost(post)
+                    this.adding_mode=false
+                    var index=this.getPostIndexById(pid)
+                    this.posts.splice(index,1)
                 },
-
                 function(responce){
-                    post.message={
+// console.dir(responce.body)
+                    this.message={
                         style: 'danger',
                         type: 'info',
                         text: responce.body
                     }
-                    this.updatePost(post)
                 })
         },
-        onConfirmPostDel(post){
+        onConfirmPostDel(){
             // Подтвердить удаление и удалить пост
-            post.message=null
-            this.updatePost(post)
-
-            return  this.delPost(post)
+            this.message=null
+            var pid=this._del_pid
+            if(pid){
+                this.deletePost(pid)
+            }
         },
-        onPostDelClick(post){
-            // Зопросить подтверждение удаления поста
-            post.message={
+        onPostDelClick(pid){
+            // Зопросить подтверждение удаления поста, id поста временно сохранить.
+            this.message={
                         style: 'danger',
                         type: 'confirm',
-                        text: 'Удалённую публикацию будет невозможно восстановить. Удалить?'
+                        text: 'Удалённую публикацию будет невозможно восстановить. Удалить навсегда?'
                     }
-                    this.updatePost(post)
+            this._del_pid=pid
         },
         getStyle(post){
             var bc=document.mag_start_data.colors[post.bgci]
@@ -138,7 +104,21 @@ module.exports={
             if(post.status=='new')ststr+='opacity: 0.5;'
             return ststr
         },
-        onMessageSent(){},
+        onMessageSent(post){
+            this.message={
+                        style: 'ok',
+                        type: 'info',
+                        text: 'Готово!'
+                    }
+            this.adding_mode=false
+
+            if(post.is_new){
+                post.is_new=undefined
+                this.posts.unshift(post)
+            }
+            else this.updatePost(post)
+
+        },
         closeAdder(){
             this.adding_mode=false
         },
@@ -146,7 +126,7 @@ module.exports={
             this.edited_post={
                     bgci:0,
                     items:[
-                        {align: 'center',tag: 'text',text: '',fotos_class:'ico'}
+                        {fotos_align: 'center',tag: 'text',text: '',fotos_class:'ico'}
                         ]
                     }
             this.adding_mode=true
@@ -166,13 +146,7 @@ module.exports={
         },
         getPostIndexById(id){
             // Вернуть индекс поста по id/null
-                    // console.log('length='+this.posts.length)
-            for(var i=0;i<this.posts.length;i++){
-                if(this.posts[i].id===id){
-                    // console.log(id+'==='+this.posts[i].id)
-                    return i
-                }//else console.log(id+'!=='+this.posts[i].id)
-            }
+            for(var i=0;i<this.posts.length;i++)if(this.posts[i].id===id)return i
             return null
         },
         updatePosts(new_posts){
@@ -182,12 +156,10 @@ module.exports={
                 if(null===pi){
                     this.posts.push(new_posts[i])
                 }else{
-                    // console.log('posts['+pi+']===new_posts['+i)
                     this.$set(this.posts,pi,new_posts[i])
                 }
             }
             this.sortPosts()
-            // console.dir(this.posts)
         },
         request(){
             var options= {
@@ -198,7 +170,7 @@ module.exports={
             }
             this.$http.get(window.location.origin+"/api/"+this.type,options).then(function(responce){                
 
-console.dir(responce.body)
+// console.dir(responce.body)
 
                     if(responce.body=='Ok')return
                     if (!responce.body.posts){
@@ -206,36 +178,17 @@ console.dir(responce.body)
                         return
                     }
                     if(responce.body.posts.length>0){
-                        this.updatePosts(this.parsePosts(responce.body.posts))
+                        this.updatePosts(responce.body.posts)
                         // this.lastupdate=responce.body.lastupdate
 
                     }
                 },function(responce){
-console.dir(responce.body)
+// console.dir(responce.body)
                     this.posts.splice(0)
                 })
         },
         refresh(){
             this.request()
-        },
-        parsePosts(posts){
-            // for(var i=0;i<posts.length;i++){
-            //     for(var j=0;j<posts[i]['items'].length;j++){                    
-            //         var item=posts[i]['items'][j]
-            //         for(var n=0;n<item.fotos.length;n++){
-            //             var foto=item.fotos[n]
-            //             foto.src='/img/fotos/'+foto.class+'/'+foto.name
-            //         }
-            //         if(item.tag){
-            //             item.o_tag='<'+item.tag+'>'
-            //             item.c_tag='</'+item.tag+'>'
-            //             item.html='<'+item.tag+'>'+item.text+'</'+item.tag+'>'
-            //         }else{
-            //             item.html=item.text
-            //         }
-            //     }
-            // }
-            return posts
         },
     },
     created(){
@@ -256,6 +209,8 @@ console.dir(responce.body)
 
 <style>
 .tabsheet{
+    display: flex;
+    flex-flow: column;
     padding: 8px 0 0 0;
     border-top: 2px solid #ddd;
 }

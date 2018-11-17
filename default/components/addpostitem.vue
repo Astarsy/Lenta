@@ -114,6 +114,7 @@ module.exports = {
             this.data.fotos_class=v
         },
         onAlignChanged(value){
+            this.data.fotos_align=value
             this.$emit('alignchanged',this.index,value)
         },
         focus(){

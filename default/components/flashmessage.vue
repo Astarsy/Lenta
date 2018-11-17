@@ -11,7 +11,7 @@
         <div v-if="type=='info'" class="buttons">
             <span class="button ok" @click="onClose">Закрыть</span>
         </div>
-        <div v-else-if="type=='confirm'">
+        <div v-else-if="type=='confirm'" class="buttons">
             <span class="button ok" @click="onOk">Подтвердить</span>
             <span class="button cancel" @click="onClose">Отменить</span>                
         </div>
@@ -28,7 +28,7 @@ module.exports = {
     },
     props:{
         message: Object,
-        parent: Object,
+        parent: Object
     },
     watch:{
         text:function(newval,oldval){
