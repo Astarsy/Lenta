@@ -1,18 +1,19 @@
 <template>
     <div v-if="msg"
-        class="flashmessage">
-        <div :class="message.style">
-            <div class="button-box">
-                <div class="button ico" @click="onClose" title="Скрыть">✘</div>
-            </div>
-            <div class="text">{{msg}}</div>
-            <div v-if="type=='info'">
-                <span class="button ok" @click="onClose">Закрыть</span>
-            </div>
-            <div v-else-if="type=='confirm'">
-                <span class="button ok" @click="onOk">Подтвердить</span>
-                <span class="button cancel" @click="onClose">Отменить</span>                
-            </div>
+        class="flashmessage"
+         :class="message.style">
+        <div class="sys-buttons">
+            <div class="button-close" @click="onClose" title="Скрыть">✘</div>
+        </div>
+        
+        <div class="msg">{{msg}}</div>
+
+        <div v-if="type=='info'" class="buttons">
+            <span class="button ok" @click="onClose">Закрыть</span>
+        </div>
+        <div v-else-if="type=='confirm'">
+            <span class="button ok" @click="onOk">Подтвердить</span>
+            <span class="button cancel" @click="onClose">Отменить</span>                
         </div>
     </div>
 </template>
@@ -36,11 +37,9 @@ module.exports = {
     },
     methods:{
         onOk(){
-            this.msg=''
             this.$emit('confirmed',this.parent)
         },
         onClose(){
-            this.msg=''
             this.$emit('closed',this.parent)
         }
     },
@@ -56,55 +55,47 @@ module.exports = {
 .flashmessage{
     position: absolute;
     display: flex;
-    justify-content: center;
-    width: 100%;
-    font-size: 18px;
-    z-index: 1;
-}
-.flashmessage>div{
-    display: flex;
+    align-self: center;
     flex-flow: column;
-    text-align: center;
-    margin: auto;
+    justify-content: center;
+    font-size: 22px;
     background-color: #f8f8f8;    
     border: 2px solid;
     border-radius: 8px;
-    padding-bottom: 8px;
+    padding: 12px;
+    z-index: 10;
 }
-.flashmessage>.danger{
+.flashmessage.danger{
     color: #f55;
     border-color: #f88;
 }
-.flashmessage>.info{
+.flashmessage.info{
     color: #55f;
     border-color: #88f;
 }
-.flashmessage>.ok{
-    color: #4c2;
-    border-color: #4c2;
+.flashmessage.ok{
+    color: #00AA17;
+    border-color: #00AA17;
 }
-.flashmessage .button-box{
+.flashmessage .sys-buttons{
     text-align: right;
 }
-.flashmessage .button{
-    font-weight: normal;
-    background-color: transparent;
+.flashmessage .buttons{
+    text-align: center;
 }
-.flashmessage .button.ok{
-    color: #4c2;
-    border: 1px solid #4c2;
-    padding: 4px 10px;
+.flashmessage .button-close{
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
 }
-.flashmessage .button.cancel{
-    color: #aaa;
-    border: 1px solid #aaa;
-    padding: 0 8px;
-    margin-left: 10px;
-}
-.flashmessage .button.ico{
-    border: none;
-}
-.flashmessage .text{
-    margin: 0 8px 10px 8px;
+.flashmessage .msg{
+    margin: 10px 0 20px 0;
+    cursor: default;
 }
 </style>

@@ -131,6 +131,7 @@ module.exports = {
 }
 .post-title{
     margin: 2px 8px;
+    text-align: center;
 }
 .post-title.status-new{
     font-style: italic;

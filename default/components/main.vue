@@ -107,6 +107,15 @@ module.exports = {
     border-radius: 100px;
     font-size: 16px;
 }
+.button.disabled{
+    color: #aaa;
+    background-color: #eee;
+    border-color: #bbb;
+    cursor: default;
+}
+.button:not(.disabled):hover{
+    box-shadow: 0 0 2px #888;
+}
 
 .tabs{
     display: inline-flex;

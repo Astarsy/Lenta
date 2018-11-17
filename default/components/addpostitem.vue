@@ -2,7 +2,7 @@
     <div>      
         <div class="back" :class="{ active : edit_mode }" @click.stop="onOk"></div>
         
-        <div class="item" :class="{ edited : edit_mode }" @click="onEditText">
+        <div  v-if="!deleted" class="item" :class="{ edited : edit_mode }" @click="onEditText">
 
             <div v-if="data.tag=='text' && (data.fotos || is_fileadder_open)"
                 class="fotos"
@@ -62,7 +62,7 @@
                 <span v-if="edit_mode" class="tool-set tool cancel" @click.stop="onCancel" title="Отменить изменение текста">✘</span>
             </span> 
 
-            <span v-if="edit_mode" class="delete-item" @click="onDelete" title="Удалить весь абзац и фото">✘</span>
+            <span v-if="edit_mode" class="delete-item" @click.stop="onDelete" title="Удалить весь абзац и фото">✘</span>
 
             <span v-if="edit_mode" class="counter"
                 :title="counter.title"
@@ -95,6 +95,7 @@ module.exports = {
             edit_mode: false,
             show_fileadder: false,
             tools_fixed: false,
+            deleted: false,
 
             data: this.$root.deepCopy(this.item)
         }
@@ -124,13 +125,16 @@ module.exports = {
             this.edit_mode=this.canedit
             this.focus()
         },
-        onOk(){
-            this.edit_mode=false
-            this.show_fileadder=false
-            this.data.text=this.$refs[this.ref].innerText
-        },
         onInput(){
             this.setCounter()
+        },
+        onOk(){
+            var t=this.$refs[this.ref].innerText.trim()
+            if(t=='')this.deleted=true
+            this.data.text=t
+            this.edit_mode=false
+            this.show_fileadder=false
+            this.$emit('changed')
         },
         onCancel(){
             this.edit_mode=false
@@ -141,7 +145,8 @@ module.exports = {
             this.data=this.$root.deepCopy(this.item)
         },
         onDelete(){
-            this.$emit('deleted',this.index)
+            this.deleted=true
+            return this.onOk()
         },
         onFileadderOpen(){
             this.show_fileadder=true
@@ -366,7 +371,6 @@ div[contenteditable='true']{
     border-top-left-radius: 8px;
     font-size: 18px;
     cursor: pointer;
-    opacity: .5;
 }
 .delete-item:hover{
     opacity: 1;
@@ -392,6 +396,7 @@ div[contenteditable='true']{
     padding: 4px 0;
     border-radius: 10px;
 }
+.delete-post:hover,
 .adder .item:not(.edited):hover{
     box-shadow: 0 0 2px #888;
 }

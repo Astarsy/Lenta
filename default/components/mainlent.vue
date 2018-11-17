@@ -12,7 +12,6 @@
             @click="onAddPostClick">Создать публикацию</div>
 
         <adder v-if="adding_mode"
-            method="/api/add"
             :post="edited_post"
             @message-setn="onMessageSent"
             @adder-close="closeAdder"></adder>
@@ -198,6 +197,9 @@ module.exports={
                 }
             }
             this.$http.get(window.location.origin+"/api/"+this.type,options).then(function(responce){                
+
+console.dir(responce.body)
+
                     if(responce.body=='Ok')return
                     if (!responce.body.posts){
                         this.posts.splice(0)
@@ -208,7 +210,8 @@ module.exports={
                         // this.lastupdate=responce.body.lastupdate
 
                     }
-                },function(){
+                },function(responce){
+console.dir(responce.body)
                     this.posts.splice(0)
                 })
         },

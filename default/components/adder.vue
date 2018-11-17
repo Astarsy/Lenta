@@ -1,13 +1,22 @@
 <template>
     <div class="adder">
+
+        <flashmessage
+            v-if="message"
+            :parent="this"
+            :message="message"
+            @closed="onFlashMessageClosed"></flashmessage>
+
         <div class="head">
             <h3 v-if="is_new">Создать публикацию</h3>
             <h3 v-else>Редактировать публикацию</h3>
-            <colorpeeker :bgci="bgci" @color-choice="onColorChoice"></colorpeeker>
+            <colorpeeker :bgci="data.bgci" @color-choice="onColorChoice"></colorpeeker>
         </div>
 
         <div class="post"
             :style="{ 'background-color' : bg_color }">
+
+            <span class="delete-post" @click.stop="onDelete" title="Удалить всю публикацию">✘</span>
 
             <div class="post-title"
                 :class="{ 'status-new' : data.status=='new' }">
@@ -15,20 +24,20 @@
                 <span>{{ data.updated_at | date }}</span>
             </div>
 
-            <postitem v-for="(item,k) in items"
+            <postitem v-for="(item,k) in data.items"
                 class="item-box"
                 :ref="'item_'+k"
                 :key="k"
                 :index="k"
-                :itemscount="items.length"
+                :itemscount="data.items.length"
                 :class="getItemClass(item)"
                 :item="item"
                 :canedit='true'
-                @deleted="onItemDeleted"
+                @changed="onItemsChanged"
                 @editmodechanged="onEditmodeChanged"
                 @alignchanged="onAlignChanged"></postitem>
 
-            <span v-if="items.length<max_post_items_count"
+            <span v-if="data.items.length<max_post_items_count"
                 class="add-item-button" 
                 :class="{ disabled : edit_mode }"
                 @click="onAddItem" 
@@ -37,8 +46,10 @@
 
         <div class="buttons">
             <span v-if="is_new" class="button ok"
+                :class="{ disabled : !can_save }"
                 @click="onSendClick">Создать</span>
             <span v-else class="button ok"
+                :class="{ disabled : !can_save }"
                 @click="onSendClick">Сохранить</span>
             <span class="button cancel"
                 @click="onCloseClick">Отменить</span>
@@ -50,31 +61,78 @@
 <script>
 var colorpeeker=require('./colorpeeker.vue')
 var postitem=require('./addpostitem.vue')
+var flashmessage=require('./flashmessage.vue')
 module.exports = {
     data: function(){
 // console.dir(this.post)
         return{         
             max_items_count: 3,
-            items: this.$root.deepCopy(this.post.items),
-            data: this.post,
-            bgci: this.post.bgci,
-            edit_mode: false
+            data: this.$root.deepCopy(this.post),
+            edit_mode: false,
+            can_save: this.countItems()>0,
+            message: null
         }
     },
     props:{
-        method:{
-            type: String,
-            required: true,
-        },
         post: Object        
     },
     methods: {
+        onFlashMessageClosed(){
+            this.message=null
+        },
+        onDelete(){
+            if(!this.data.id)return
+
+            var data=new FormData()
+            data.append('id',this.data.id);
+
+            this.$http.post(window.location.origin+"/api/del",data).then(function(responce){
+console.dir(responce.body)
+                    this.message={
+                        style: 'ok',
+                        type: 'info',
+                        text: responce.body
+                    }
+                },
+                function(responce){
+console.dir(responce.body)
+                    this.message={
+                        style: 'danger',
+                        type: 'info',
+                        text: responce.body
+                    }
+                })
+
+            // this.$emit('adder-close')
+        },
+        onItemsChanged(){
+            this.can_save=this.countItems()>0
+        },
+        countItems(){
+            var count=0;
+            Object.entries(this.$refs).forEach(entry=>{
+                var item_body=entry[1][0]
+                if(item_body.deleted)return
+                else count++;
+            })
+            return count
+        },
         onSendClick: function(){
             var items=[]
             var files=[]
             var item_of_file=[]
             var item_counter=0
+
             Object.entries(this.$refs).forEach(entry=>{
+                var item_body=entry[1][0]
+
+                if(item_body.deleted)return
+
+                if( !item_body.data.text 
+                    && (!item_body.fotos || item_body.fotos.length==0)
+                    &&(!item_body.files || item_body.files.length==0))return
+
+
                 var k=entry[0]
                 var item_data=entry[1][0].data
                 var item={
@@ -112,7 +170,7 @@ module.exports = {
 
             var post={
                 id: this.post.id,
-                bgci: this.bgci,
+                bgci: this.data.bgci,
                 items: items,
                 item_of_file: item_of_file
             }
@@ -125,25 +183,21 @@ module.exports = {
             return c
         },
         onAlignChanged(index,value){
-            var item=this.items[index]
+            var item=this.data.items[index]
             item.align=value
-            this.$set(this.items,index,item)
+            this.$set(this.data.items,index,item)
         },
         onEditmodeChanged(v){
             this.edit_mode=v
         },
         onAddItem(){
             if(this.edit_mode)return
-            this.items.splice(this.items.length,0,
+            this.data.items.splice(this.data.items.length,0,
                     {align:'center',tag:'text',text:'',fotos:[], fotos_class:'mini'}
                 )
         },
-        onItemDeleted(key){
-            this.items.splice(key,1)
-            this.edit_mode=false
-        },
         onColorChoice(i){
-            this.bgci=i
+            this.data.bgci=i
         },
         postPost(post,files){
             var data=new FormData()
@@ -154,7 +208,7 @@ module.exports = {
             }
 
 // console.dir(this.method)
-            this.$http.post(window.location.origin+this.method,data).then(function(responce){
+            this.$http.post(window.location.origin+"/api/add",data).then(function(responce){
 console.dir(responce.body)
 return
                     this.message=responce.data.text
@@ -170,7 +224,7 @@ console.dir(responce.body)
     },
     computed:{
         bg_color:function(){
-            return document.mag_start_data.colors[this.bgci]
+            return document.mag_start_data.colors[this.data.bgci]
         },
         is_new:function(){
             return !this.data.updated_at
@@ -179,9 +233,13 @@ console.dir(responce.body)
             return document.mag_start_data.max_post_items_count
         }
     },
+    mounted(){
+        this.onItemsChanged()
+    },
     components: {
         colorpeeker,
-        postitem
+        postitem,
+        flashmessage
     }
 }
 </script>
@@ -220,6 +278,24 @@ console.dir(responce.body)
 .buttons{
     display: inline-block;
     margin: 4px 8px;
+}
+
+.delete-post{
+    position: absolute;
+    top: 2px;
+    left: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    color: #C41300;
+    cursor: pointer;
+    border-radius: 40px;
+    opacity: .5;
+}
+.delete-post:hover{
+    opacity: 1;
 }
 
 </style>
