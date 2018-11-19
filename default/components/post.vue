@@ -34,19 +34,6 @@
                     <div v-html="item.text"></div>
                     <div class="stub" style="clear: both;"></div>
                 </div>
-
-    <!--             <div v-if="item.fotos"
-                    class="fotos"
-                    :class="fotos_class">
-
-                    <div v-for="(foto,i) in item.fotos"
-                        class="foto">
-                        <img :src="getFotoSrc(item,foto)">
-                    </div>
-                </div>
-
-                <div :class="item.tag">{{ item.text }}</div> -->
-
             </div>
         </div>
 
@@ -118,13 +105,13 @@ module.exports = {
 .post .edit{
     position: absolute;
     top: 0;
-    right: 4px;
+    right: 6px;
     color: #0772a1;
     font-size: 20px;
     font-weight: bold;
     transform: rotate(110deg);
     cursor: pointer;
-    opacity: .1;
+    opacity: .5;
 }
 .post:hover .edit{
     opacity: 1;
@@ -145,9 +132,7 @@ module.exports = {
 .fotos{
     display: flex;
     justify-content: center;
-}
-.foto{
-    display: inline-flex;
+    overflow: hidden;
 }
 .fotos div.foto{
     margin-right: 6px;
@@ -156,6 +141,8 @@ module.exports = {
     margin-right: 0;
 }
 .foto img{
+    max-width: 100%;
+    height: auto;
     border-radius: 12px;
 }
 .item-box{
@@ -169,7 +156,6 @@ module.exports = {
 .left .fotos{
     float: left;
     margin-right: 10px;
-    padding-left: 4px;
 }
 .left .text{
     margin-right: 4px;
@@ -177,19 +163,8 @@ module.exports = {
 .right .fotos{
     float: right;
     margin-left: 10px;
-    padding-right: 4px;
 }
 .text{
     margin-left: 8px;
-}
-
-.fotos.mini img{
-    width: 300px;
-    height: 300px;
-}
-.fotos img,
-.fotos.ico img{
-    width: 84px;
-    height: 84px;
 }
 </style>

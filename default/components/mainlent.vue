@@ -8,9 +8,11 @@
             @confirmed="onConfirmPostDel"
             @closed="onFlashMessageClosed"></flashmessage>
 
-        <div class="button ok"
-            v-if="add && !adding_mode"
-            @click="onAddPostClick">Создать публикацию</div>
+        <div v-if="add && !adding_mode" class="my-pannel" 
+            @click="onAddPostClick">
+            <span class="button ok">Создать публикацию</span>
+            <span class="user-name">{{ user.name }}</span>
+        </div>
 
         <adder v-if="adding_mode"
             :post="edited_post"
@@ -36,9 +38,7 @@ module.exports={
             curpage: 0,
             lastupdate: 0,
             posts: [],
-            user:{
-                id: '25'
-            },
+            user: document.mag_start_data.user,
             adding_mode: false,
             edited_post: undefined,
             message: null
@@ -221,5 +221,17 @@ module.exports={
     border: 2px solid #ddd;
     border-radius: 8px;
     margin-top: 8px;
+}
+.my-pannel{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 12px;
+}
+.user-name{
+    display: flex;
+    font-weight: bold;
+    font-size: 20px;
+    color: #8600D7;
 }
 </style>

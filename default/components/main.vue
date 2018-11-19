@@ -1,13 +1,13 @@
 <template>
     <div class="lent-default">
         <div class="tabs">
-            <div class="button tab" 
+            <div class="tab" 
                 v-for="tab in tabs"
                 v-bind:key="tab.name"
                 v-bind:class="['tab-button',{ active: current.name === tab.name }]"
                 v-on:click="onTabClick(tab)">
                 {{ tab.name }}</div>
-            <div class="button cancel tab"
+            <div class="tab"
                 @click="onTestClick"
                 >Update</div>
         </div>
@@ -85,8 +85,6 @@ module.exports = {
     cursor: default;
 }
 
-
-
 .button{
     display: inline-flex;
     justify-content: center;
@@ -123,17 +121,20 @@ module.exports = {
     margin-left: 20px;
 }
 .tab{
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
     width: 100px;
-    margin-top: 2px;
     padding: 4px 16px;
     margin-right: -6px;
-    border-width: 2px;
-    border-color: #ccc;
+    border: 2px solid #ddd;
     border-bottom: none;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
+    border-top-right-radius: 20px;
+    border-top-left-radius: 20px;
     background-color: #f8f8f8;
     user-select: none;
+    cursor: pointer;
     z-index: 0;
 }
 .tab:last-child{
@@ -145,6 +146,7 @@ module.exports = {
     border-color: #d8d8d8;
     border-bottom: 2px solid #fff;
     margin-bottom: -2px;
+    cursor: default;
     z-index: 1;
 }
 </style>

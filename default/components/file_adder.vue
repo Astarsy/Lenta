@@ -1,21 +1,7 @@
 <template>
     <div class="file-adder">
         <flash :text="flash" @closed="flash=''"></flash>
-
         <input :id="fileElem" type="file" accept="image/jpeg" style="display:none" @change.prevent="handleFiles" />
-
-<!--         <div v-for="(i,index) in filedata"
-            class="foto"
-            :class="{ edited : editmode }">
-
-            <img :src="i.image">
-
-            <span v-if="editmode" class="tools">
-                <span class="tool delete" @click="onDeleteFoto" title="Удалить">✘</span>
-            </span>
-
-        </div> -->
-
         <div class="foto add-button" v-if="this.canadd" @click.stop="onAddClick" title="Выбрать фото">✚</div>
 
     </div>

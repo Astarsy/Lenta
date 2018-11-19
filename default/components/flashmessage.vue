@@ -65,7 +65,8 @@ module.exports = {
     padding: 12px;
     z-index: 10;
 }
-.flashmessage.danger{
+.flashmessage.danger,
+.flashmessage.danger .ok{
     color: #f55;
     border-color: #f88;
 }
