@@ -28,6 +28,7 @@ module.exports = {
     data: function(){
         return {
             tabs: null,
+            timeout: 60000,
             current: null,
             refreshTimerId: null,
             curcomp: null
@@ -43,9 +44,8 @@ module.exports = {
             this.$refs.curcomp.refresh()
         },
         tick(){
-            // console.dir(this.$refs.curcomp)
             if(this.$refs.curcomp)this.$refs.curcomp.refresh()
-            // this.refreshTimerId=setTimeout(this.tick,5000)
+            this.refreshTimerId=setTimeout(this.tick,this.timeout)
         },
         getStartData(){
                 return document.mag_start_data
@@ -54,6 +54,7 @@ module.exports = {
     created(){
         var d=this.getStartData()
         this.tabs=d.tabs
+        this.timeout=d.timeout
         this.current=this.tabs[0]
         this.tick()
     },

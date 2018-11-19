@@ -170,7 +170,8 @@ module.exports={
             }
             this.$http.get(window.location.origin+"/api/"+this.type,options).then(function(responce){                
 
-// console.dir(responce.body)
+console.log('now '+this.lastupdate)
+console.dir(responce.body.posts)
 
                     if(responce.body=='Ok')return
                     if (!responce.body.posts){
@@ -179,8 +180,7 @@ module.exports={
                     }
                     if(responce.body.posts.length>0){
                         this.updatePosts(responce.body.posts)
-                        // this.lastupdate=responce.body.lastupdate
-
+                        this.lastupdate=responce.body.lastupdate
                     }
                 },function(responce){
 // console.dir(responce.body)
