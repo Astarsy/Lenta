@@ -1,22 +1,30 @@
 <template>
     <div class="lent-default">
-        <div class="tabs">
-            <div class="tab" 
-                v-for="tab in tabs"
-                v-bind:key="tab.name"
-                v-bind:class="['tab-button',{ active: current.name === tab.name }]"
-                v-on:click="onTabClick(tab)">
-                {{ tab.name }}</div>
-            <div class="tab"
-                @click="onTestClick"
-                >Update</div>
+        <div class="panel">
+            <div class="tabs">
+                <div class="tab" 
+                    v-for="tab in tabs"
+                    v-bind:key="tab.name"
+                    v-bind:class="['tab-button',{ active: current.name === tab.name }]"
+                    v-on:click="onTabClick(tab)">
+                    {{ tab.name }}</div>
+                <div class="tab"
+                    @click="onTestClick"
+                    >Update</div>
+            </div>
+            <div v-if="!user">
+            <a href="http://100tkaney.loc/lenta">Войти</a>
+            </div>
+            <div v-else>
+            <a href="/html/out">Выйти</a>
+            </div>
         </div>
         <keep-alive>
         <mainlent
             :key="current.name"
             ref="curcomp"
             :type="current.type"
-            :add="this.current.add"></mainlent>
+            :canadd="this.current.add"></mainlent>
         </keep-alive>
     </div>
 </template>
@@ -30,6 +38,7 @@ module.exports = {
             tabs: null,
             timeout: 60000,
             current: null,
+            user: null,
             refreshTimerId: null,
             curcomp: null
         }
@@ -41,10 +50,10 @@ module.exports = {
             this.current=tab
         },
         onTestClick:function (e){
-            this.$refs.curcomp.refresh()
+            this.$refs.curcomp.request()
         },
         tick(){
-            if(this.$refs.curcomp)this.$refs.curcomp.refresh()
+            if(this.$refs.curcomp)this.$refs.curcomp.request()
             this.refreshTimerId=setTimeout(this.tick,this.timeout)
         },
         getStartData(){
@@ -53,6 +62,7 @@ module.exports = {
     },
     created(){
         var d=this.getStartData()
+        if(d.user)this.user=d.user
         this.tabs=d.tabs
         this.timeout=d.timeout
         this.current=this.tabs[0]
@@ -117,6 +127,10 @@ module.exports = {
     box-shadow: 0 0 2px #888;
 }
 
+.panel{
+    display: flex;
+    justify-content: space-between;
+}
 .tabs{
     display: inline-flex;
     margin-left: 20px;

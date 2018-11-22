@@ -8,7 +8,7 @@
             @confirmed="onConfirmPostDel"
             @closed="onFlashMessageClosed"></flashmessage>
 
-        <div v-if="add && !adding_mode" class="my-pannel" 
+        <div v-if="canadd && !adding_mode" class="my-pannel" 
             @click="onAddPostClick">
             <span class="button ok">Создать публикацию</span>
             <span class="user-name">{{ user.name }}</span>
@@ -46,7 +46,7 @@ module.exports={
     },
     props:{
         type: String,
-        add: Boolean
+        canadd: Boolean
     },
     methods: {
         onPostEdit(post){
@@ -170,7 +170,7 @@ module.exports={
             }
             this.$http.get(window.location.origin+"/api/"+this.type,options).then(function(responce){                
 
-console.log('now '+this.lastupdate)
+console.log('last update '+this.lastupdate)
 console.dir(responce.body.posts)
 
                     if(responce.body=='Ok')return
@@ -182,21 +182,21 @@ console.dir(responce.body.posts)
                         this.updatePosts(responce.body.posts)
                         this.lastupdate=responce.body.lastupdate
                     }
-                },function(responce){
-// console.dir(responce.body)
-                    this.posts.splice(0)
+                },function(responce){                    
+                    if(responce.status==403){
+                        // try to refresh access for current user by reloading the page
+                        console.log('403')
+                        window.location='/html/login'
+                    }
                 })
-        },
-        refresh(){
-            this.request()
         },
     },
     created(){
-        this.refresh()
+        this.request()
     },
     computed:{
         canedit:function(){
-            return this.add && !this.adding_mode
+            return this.canadd && !this.adding_mode
         }
     },
     components: {
