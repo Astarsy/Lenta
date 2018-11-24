@@ -11,8 +11,13 @@
 
         <div class="post-title"
             :class="{ 'status-new' : data.status=='new' }">
-            <span v-if="data.status=='new'">Новая публикация</span>
-            <span>{{ data.updated_at | date }}</span>
+            <img class="avatar" v-if="data.user_avatar" :src="'/img/avatars/'+data.user_avatar">
+            <span>
+                <span class="user-name">{{ data.user_name }}</span>
+                <span v-if="data.status=='new'">Новая публикация</span>
+                <span>{{ data.updated_at | date }}</span>
+                <span v-if="data.access" class="access" title="Приватная публикация">!</span>
+            </span>
         </div>
 
         <div v-for="item in data.items"
@@ -57,6 +62,10 @@ module.exports = {
         canedit: {
             type: Boolean,
             default: false
+        },
+        curuser:{
+            type: Object,
+            default: null
         }
     },
     methods: {
@@ -76,6 +85,9 @@ module.exports = {
         }
     },
     computed:{
+        // avatar:function(){
+        //     return "/img/avatars/"+this.curuser.user_avatar
+        // },
         style:function(){
             var bc=document.mag_start_data.colors[this.data.bgci]
             var ststr='background-color:'+bc+';'
@@ -117,6 +129,9 @@ module.exports = {
     opacity: 1;
 }
 .post-title{
+    display: flex;
+    align-content: center;
+    align-items: center;    
     margin: 2px 8px;
     text-align: center;
 }
@@ -124,9 +139,31 @@ module.exports = {
     font-style: italic;
 }
 .post-title>span{
-    margin-left: 20px;
+    display: flex;
+    align-items: baseline;
 }
-
+.avatar{
+    border-radius: 8px;
+    max-height: 40px;
+    max-width: 40px;
+}
+.user-name{
+    margin: 0 12px;
+    font-weight: bold;
+}
+.post-title .access{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    color: #d77;
+    font-weight: bold;
+    margin-left: 10px;
+    border: 2px solid #d77;
+    border-radius: 100%;
+    cursor: default;
+}
 
 
 .fotos{

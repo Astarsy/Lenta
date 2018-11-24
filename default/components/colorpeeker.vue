@@ -28,17 +28,22 @@ module.exports = {
 }
 </script>
 <style>
+
+.colorpeeker{
+}
 .colorpeeker .cpcolor{
     display: inline-flex;
-    border:1px solid #ccc;
-    border-radius: 3px;
-    width: 22px;
-    height: 22px;
+    align-items: center;
+    border:2px solid #999;
+    border-radius: 30px;
+    width: 30px;
+    height: 20px;
     margin-left: 2px;
+    opacity: .6;
     cursor: pointer;
 }
 .colorpeeker .cpcolor.curcolor{
-    border-width: 2px;
-    border-color: #aaa;
+    opacity: 1;
+    cursor: default;
 }
 </style>

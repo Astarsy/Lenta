@@ -21,6 +21,7 @@
             @adder-close="closeAdder"></adder>
 
         <post v-for="post in posts"
+            :curuser="user"
             :data="post"
             :canedit="canedit"
             @edit="onPostEdit(post)"></post>

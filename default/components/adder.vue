@@ -11,6 +11,7 @@
             <h3 v-if="is_new">Создать публикацию</h3>
             <h3 v-else>Редактировать публикацию</h3>
             <colorpeeker :bgci="data.bgci" @color-choice="onColorChoice"></colorpeeker>
+            <toggleinput :access="data.access" @changed="onAccessChanged"></toggleinput>
         </div>
 
         <div class="post"
@@ -62,6 +63,7 @@
 var colorpeeker=require('./colorpeeker.vue')
 var postitem=require('./addpostitem.vue')
 var flashmessage=require('./flashmessage.vue')
+var toggleinput=require('./toggleinput.vue')
 module.exports = {
     data: function(){
 // console.dir(this.post)
@@ -70,7 +72,7 @@ module.exports = {
             data: this.$root.deepCopy(this.post),
             edit_mode: false,
             can_save: this.countItems()>0,
-            message: null
+            message: null,
         }
     },
     props:{
@@ -143,6 +145,7 @@ module.exports = {
             var post_to_send={
                 id: this.post.id,
                 bgci: this.data.bgci,
+                access: this.data.access,
                 items: items,
                 item_of_file: item_of_file
             }
@@ -168,8 +171,11 @@ module.exports = {
                     {fotos_align:'center',tag:'text',text:'',fotos:[], fotos_class:'mini'}
                 )
         },
-        onColorChoice(i){
-            this.data.bgci=i
+        onColorChoice(v){
+            this.data.bgci=v
+        },
+        onAccessChanged(v){
+            this.data.access=v
         },
         postPost(post,files){
             var data=new FormData()
@@ -179,9 +185,8 @@ module.exports = {
                 data.append('userFiles[]',files[i])
             }
 
-// console.dir(this.method)
             this.$http.post(window.location.origin+"/api/add",data).then(function(responce){
-// console.dir(responce.data)
+// console.dir(responce)
                     if(undefined==post.id){
                         post.id=responce.data
                         post.is_new=true
@@ -189,7 +194,7 @@ module.exports = {
                     this.$emit('message-setn',post)
                 },
                 function(responce){
-// console.dir(responce.body)
+// console.dir(responce)
                 })
         },
         onCloseClick: function(){
@@ -213,7 +218,8 @@ module.exports = {
     components: {
         colorpeeker,
         postitem,
-        flashmessage
+        flashmessage,
+        toggleinput
     }
 }
 </script>
@@ -242,6 +248,7 @@ module.exports = {
 .adder .head{
     display: flex;
     justify-content: space-around;
+    align-items: center;
     padding: 10px 0 0 0;
 }
 .adder .head *{
@@ -257,7 +264,7 @@ module.exports = {
 .delete-post{
     position: absolute;
     top: 2px;
-    left: 10px;
+    right: 4px;
     display: flex;
     justify-content: center;
     align-items: center;

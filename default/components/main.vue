@@ -24,7 +24,7 @@
             :key="current.name"
             ref="curcomp"
             :type="current.type"
-            :canadd="this.current.add"></mainlent>
+            :canadd="this.current.canadd"></mainlent>
         </keep-alive>
     </div>
 </template>
@@ -53,7 +53,7 @@ module.exports = {
             this.$refs.curcomp.request()
         },
         tick(){
-            if(this.$refs.curcomp)this.$refs.curcomp.request()
+            // if(this.$refs.curcomp)this.$refs.curcomp.request()
             this.refreshTimerId=setTimeout(this.tick,this.timeout)
         },
         getStartData(){
