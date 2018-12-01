@@ -8,6 +8,15 @@
                     v-bind:class="['tab-button',{ active: current.name === tab.name }]"
                     v-on:click="onTabClick(tab)">
                     {{ tab.name }}</div>
+                <div class="tab" 
+                    v-for="tab in user_tabs"
+                    v-bind:key="tab.name"
+                    v-bind:class="['tab-button',{ active: current.name === tab.name }]"
+                    v-on:click="onTabClick(tab)">
+                    {{ tab.name }}
+                    <span class="tab-close" 
+                        @click.stop="onTabClose(tab)" title="Закрыть вкладку">X</span>
+                </div>
                 <div class="tab"
                     @click="onTestClick"
                     >Update</div>
@@ -23,8 +32,9 @@
         <mainlent
             :key="current.name"
             ref="curcomp"
-            :type="current.type"
-            :canadd="this.current.canadd"></mainlent>
+            :tab="current"
+            :canadd="this.current.canadd"
+            @open-user-lent="onOpenUserLent"></mainlent>
         </keep-alive>
     </div>
 </template>
@@ -36,6 +46,7 @@ module.exports = {
     data: function(){
         return {
             tabs: null,
+            user_tabs: null,
             timeout: 60000,
             current: null,
             user: null,
@@ -46,6 +57,30 @@ module.exports = {
     props: {
     },
     methods: {
+        onTabClose(tab){
+            this.user_tabs.splice(this.user_tabs.indexOf(tab),1)
+        },
+        onOpenUserLent(user){
+            // Создать вкладку пользователя
+            var new_tab={
+                id:user.id,
+                name:user.name,
+                type:'user',
+                params:{uid:user.id}
+            }
+            if(null===this.user_tabs)this.user_tabs=[new_tab]
+            else if(null===this.getUserTabById(new_tab.id)){
+                this.user_tabs.push(new_tab)
+                if(this.user_tabs.length>2)this.user_tabs.shift();
+            }
+            this.current=new_tab
+        },
+        getUserTabById(uid){
+            for(var i=0;i<this.user_tabs.length;i++){
+                if(this.user_tabs[i].id===uid)return this.user_tabs[i]
+            }
+            return null
+        },
         onTabClick(tab){
             this.current=tab
         },
@@ -136,6 +171,7 @@ module.exports = {
     margin-left: 20px;
 }
 .tab{
+    position: relative;
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -163,5 +199,13 @@ module.exports = {
     margin-bottom: -2px;
     cursor: default;
     z-index: 1;
+}
+.tab-close{
+    position: absolute;
+    top: 2px;
+    right: 8px;
+    display: flex;
+    font-size: 12px;
+    cursor: pointer;
 }
 </style>

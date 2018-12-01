@@ -408,11 +408,10 @@ div[contenteditable='true']{
 
 .counter{
     display: flex;
-    width: 32px;
+    width: 38px;
     height: 24px;
     justify-content: center;
     align-items: center;
-
     position: absolute;
     bottom: -24px;
     right: 12px;

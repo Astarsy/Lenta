@@ -11,9 +11,12 @@
 
         <div class="post-title"
             :class="{ 'status-new' : data.status=='new' }">
-            <img class="avatar" v-if="data.user_avatar" :src="'/img/avatars/'+data.user_avatar">
+            <img class="avatar" v-if="data.user_avatar"
+                :src="'/img/avatars/'+data.user_avatar"
+                @click="onUserClick({id:data.user_id,name:data.user_name})">
             <span>
-                <span class="user-name">{{ data.user_name }}</span>
+                <span class="user-name"
+                    @click="onUserClick({id:data.user_id,name:data.user_name})">{{ data.user_name }}</span>
                 <span v-if="data.status=='new'">Новая публикация</span>
                 <span>{{ data.updated_at | date }}</span>
                 <span v-if="data.access" class="access" title="Приватная публикация">!</span>
@@ -55,6 +58,7 @@ var flashmessage=require('./flashmessage.vue')
 module.exports = {
     data: function(){
         return{
+            // user: document.mag_start_data.user
         }
     },
     props:{
@@ -69,6 +73,9 @@ module.exports = {
         }
     },
     methods: {
+        onUserClick(uid){
+            this.$emit('user-click',uid)
+        },
         text_box_class:function(item){
             var res=item.tag?item.tag:'text'
             return res
@@ -146,10 +153,12 @@ module.exports = {
     border-radius: 8px;
     max-height: 40px;
     max-width: 40px;
+    cursor: pointer;
 }
 .user-name{
     margin: 0 12px;
     font-weight: bold;
+    cursor: pointer;
 }
 .post-title .access{
     display: flex;

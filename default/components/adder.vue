@@ -195,6 +195,11 @@ module.exports = {
                 },
                 function(responce){
 // console.dir(responce)
+                    this.message={
+                        style: 'danger',
+                        type: 'info',
+                        text: "Не удалось создать публикацию..."
+                    }
                 })
         },
         onCloseClick: function(){

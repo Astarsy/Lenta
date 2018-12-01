@@ -24,7 +24,8 @@
             :curuser="user"
             :data="post"
             :canedit="canedit"
-            @edit="onPostEdit(post)"></post>
+            @edit="onPostEdit(post)"
+            @user-click="onPostUserClick"></post>
 
     </div>
 </template>
@@ -46,10 +47,13 @@ module.exports={
         }
     },
     props:{
-        type: String,
+        tab: Object,
         canadd: Boolean
     },
     methods: {
+        onPostUserClick(user){
+            this.$emit('open-user-lent',user)
+        },
         onPostEdit(post){
             this.edited_post=post,
             this.adding_mode=true
@@ -67,7 +71,7 @@ module.exports={
                     this.message={
                         style: 'ok',
                         type: 'info',
-                        text: responce.body
+                        text: "Публикация успешно удалена."
                     }
                     this.adding_mode=false
                     var index=this.getPostIndexById(pid)
@@ -78,7 +82,7 @@ module.exports={
                     this.message={
                         style: 'danger',
                         type: 'info',
-                        text: responce.body
+                        text: "Не удалось удалить публикацию."
                     }
                 })
         },
@@ -106,10 +110,13 @@ module.exports={
             return ststr
         },
         onMessageSent(post){
+            var text
+            if(post.id)text='Публикация успешно сохранена!'
+            else text='Публикация успешно создана!'
             this.message={
                         style: 'ok',
                         type: 'info',
-                        text: 'Готово!'
+                        text: text
                     }
             this.adding_mode=false
 
@@ -127,7 +134,7 @@ module.exports={
             this.edited_post={
                     bgci:0,
                     items:[
-                        {fotos_align: 'center',tag: 'text',text: '',fotos_class:'ico'}
+                        {fotos_align: 'center',tag: 'text',text: '',fotos_class:'ico',access:null}
                         ]
                     }
             this.adding_mode=true
@@ -169,10 +176,11 @@ module.exports={
                     curpage: this.curpage
                 }
             }
-            this.$http.get(window.location.origin+"/api/"+this.type,options).then(function(responce){                
+            if(this.tab.params)options.params=Object.assign(options.params,this.tab.params)
+            this.$http.get(window.location.origin+"/api/"+this.tab.type,options).then(function(responce){                
 
 console.log('last update '+this.lastupdate)
-console.dir(responce.body.posts)
+console.dir(responce.body)
 
                     if(responce.body=='Ok')return
                     if (!responce.body.posts){
@@ -183,11 +191,18 @@ console.dir(responce.body.posts)
                         this.updatePosts(responce.body.posts)
                         this.lastupdate=responce.body.lastupdate
                     }
-                },function(responce){                    
+                },function(responce){  
+console.dir(responce.body)                  
                     if(responce.status==403){
                         // try to refresh access for current user by reloading the page
-                        console.log('403')
+                        // console.log('403')
                         window.location='/html/login'
+                    }else{                        
+                        // this.message={
+                        //     style: 'danger',
+                        //     type: 'info',
+                        //     text: 'Похоже что-то не получилось... Если это повторится, пожалуйста, сообщите нам, мы обязательно поможем!'
+                        // }
                     }
                 })
         },
