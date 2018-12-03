@@ -1,6 +1,6 @@
 <template>
-    <div class="lent-default">
-        <div class="panel">
+    <div class="ldb">
+        <div class="l-panel">
             <div class="tabs">
                 <div class="tab" 
                     v-for="tab in tabs"
@@ -8,6 +8,8 @@
                     v-bind:class="['tab-button',{ active: current.name === tab.name }]"
                     v-on:click="onTabClick(tab)">
                     {{ tab.name }}</div>
+            </div>
+            <div class="user-tabs">
                 <div class="tab" 
                     v-for="tab in user_tabs"
                     v-bind:key="tab.name"
@@ -17,15 +19,6 @@
                     <span class="tab-close" 
                         @click.stop="onTabClose(tab)" title="Закрыть вкладку">X</span>
                 </div>
-                <div class="tab"
-                    @click="onTestClick"
-                    >Update</div>
-            </div>
-            <div v-if="!user">
-            <a href="http://100tkaney.loc/lenta">Войти</a>
-            </div>
-            <div v-else>
-            <a href="/html/out">Выйти</a>
             </div>
         </div>
         <keep-alive>
@@ -36,6 +29,21 @@
             :canadd="this.current.canadd"
             @open-user-lent="onOpenUserLent"></mainlent>
         </keep-alive>
+        <div class="r-panel">
+            <div class="r-tabs">
+                <a v-if="!user" class="button enter" href="http://100tkaney.loc/lenta">
+                Войти</a>
+                <a v-else class="button enter" href="/html/out">
+                Выйти</a>
+                <div class="button"
+                    @click="onTestClick"
+                    >Update</div>
+                <span class="button">R-line 1</span>
+                <span class="button">R-line 2</span>
+                <span class="button">R-line 3</span>
+                <span class="button">R-line 4</span>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -110,6 +118,64 @@ module.exports = {
 </script>
 
 <style>
+html,
+body{
+/*    display: flex;
+    min-height: 100%;
+    min-width: 100%;*/
+    margin: 0;
+    padding: 0;
+}
+.ldb{
+    display: flex;
+    min-width: 100%;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+}
+.ldb .l-panel,
+.ldb .r-panel{
+    position: relative;
+    display: flex;
+    flex: 1 1 15%;
+    height: 100%;
+    width: 100%;
+    max-width: 15%;
+}
+.ldb .tabsheet{
+    flex: 4 1 60%;
+}
+.tabs{
+    position: fixed;
+    width: inherit;
+    max-width: inherit;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-flow: column;
+}
+.user-tabs{
+    position: fixed;
+    bottom: 5%;
+    left: 0;
+    display: flex;
+    flex-flow: column;
+    width: inherit;
+    max-width: inherit;
+}
+.r-tabs{
+    position: fixed;
+    width: inherit;
+    max-width: inherit;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-flow: column;
+}
+.ldb .r-panel{
+    flex-flow: column;
+
+}
 
 .h1,.h2,.h3,.h4{
     font-weight: bold;
@@ -131,6 +197,9 @@ module.exports = {
     cursor: default;
 }
 
+a.button{
+    text-decoration: none;
+}
 .button{
     display: inline-flex;
     justify-content: center;
@@ -162,41 +231,37 @@ module.exports = {
     box-shadow: 0 0 2px #888;
 }
 
-.panel{
-    display: flex;
-    justify-content: space-between;
-}
-.tabs{
-    display: inline-flex;
-    margin-left: 20px;
-}
 .tab{
     position: relative;
-    display: inline-flex;
+    display: flex;
+    align-self: flex-end;
     justify-content: center;
     align-items: center;
     font-size: 18px;
     width: 100px;
-    padding: 4px 16px;
-    margin-right: -6px;
-    border: 2px solid #ddd;
-    border-bottom: none;
-    border-top-right-radius: 20px;
-    border-top-left-radius: 20px;
-    background-color: #f8f8f8;
+    height: 100px;
+
+    /*padding: 4px 16px;*/
+    /*margin-right: -6px;*/
+    color: #8600D7;
+    border: 1px solid #8600D7;
+    /*border-bottom: none;*/
+    /*border-top-right-radius: 20px;*/
+    /*border-top-left-radius: 20px;*/
+    /*background-color: #f8f8f8;*/
     user-select: none;
     cursor: pointer;
     z-index: 0;
 }
-.tab:last-child{
-    margin-left: 12px;
+.tab:not(:last-child){
+    border-bottom: none;
 }
 .tab.active{
-    margin-top: 0;
+    /*margin-top: 0;*/
     background-color: #fff;
-    border-color: #d8d8d8;
-    border-bottom: 2px solid #fff;
-    margin-bottom: -2px;
+    /*border-color: #d8d8d8;*/
+    /*border-bottom: 2px solid #fff;*/
+    /*margin-bottom: -2px;*/
     cursor: default;
     z-index: 1;
 }

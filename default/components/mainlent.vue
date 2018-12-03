@@ -227,16 +227,10 @@ console.dir(responce.body)
 .tabsheet{
     display: flex;
     flex-flow: column;
-    padding: 8px 0 0 0;
-    border-top: 2px solid #ddd;
-}
-.post{
-    position: relative;
-    display: inline-flex;
-    flex-flow: column;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    margin-top: 8px;
+    /*padding: 8px 0 0 0;*/
+    /*border-top: 2px solid #ddd;*/
+    margin: 0 2px;
+    /*width: 80%;*/
 }
 .my-pannel{
     display: flex;

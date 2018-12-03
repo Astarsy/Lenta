@@ -114,12 +114,14 @@ module.exports = {
 <style>
 
 .post{
+    position: relative;
     display: flex;
     flex-flow: column;
-    border-right: none;
-    border-left: none;
-    border-radius: 12px;
+    border-bottom: 1px solid #ddd;
     padding-bottom: 4px;
+    /*border-right: none;*/
+    /*border-left: none;*/
+    /*border-radius: 12px;*/
 }
 .post .edit{
     position: absolute;
