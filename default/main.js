@@ -11,7 +11,7 @@ Vue.filter('date',function(val){
         var mm = date.getMonth() + 1
         if (mm < 10) mm = '0' + mm
         var yy = date.getFullYear() % 100
-        if (yy < 10) yy = '0' + yy
+        // if (yy < 10) yy = '0' + yy
         var hh=date.getHours()
         var ii=date.getMinutes()
         if (ii < 10) ii = '0' + ii
