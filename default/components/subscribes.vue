@@ -1,13 +1,18 @@
 <template>
     <div class="subscribes">
         <div v-for="item in data" title="Открыть ленту"
-            @click="onClick(item)">
+            @click="onOpen(item)">
             <span class="avatar">
                 <img v-if="item.avatar"
                     :src="'/img/avatars/'+item.avatar">
             </span>
             <span class="name">{{ item.name }}</span>
             <span class="count" title="Всего публикаций">{{ item.post_count }}</span>
+            <div class="unscribe"
+                @click.stop="onUnscribe(item)">
+                ❌
+                <div class="unscribe-text" title="Отписаться">ОТПИСАТЬСЯ</div>
+            </div>
         </div>
     </div>
 </template>
@@ -22,8 +27,11 @@ module.exports = {
         data: Array,
     },
     methods: {
-        onClick(item){
-            this.$emit('click',item)
+        onUnscribe(item){
+            this.$emit('unscribe',item)
+        },
+        onOpen(item){
+            this.$emit('open',item)
         }
     },
     created(){
@@ -35,13 +43,12 @@ module.exports = {
 .subscribes{
     display: flex;
     flex-flow: column;
-    font-size: 18px;
-    font-weight: bold;
-    color: #8600D7;
     margin-top: 12px;
     border: 1px solid #8600D7;
+    overflow: hidden;
 }
 .subscribes>div{
+    position: relative;
     display: flex;
     flex-flow: row;
     align-items: center;
@@ -54,9 +61,13 @@ module.exports = {
 .subscribes>div>span:not(:last-child){
     margin-right: 12px;
 }
+.subscribes .name{
+    font-size: 18px;
+    font-weight: bold;
+    color: #8600D7;
+}
 .subscribes .count{
     color: #888;
-    font-weight: normal;
     font-size: 14px;
     padding-bottom: 1em;
 }
@@ -71,5 +82,29 @@ module.exports = {
     max-height: 40px;
     width: auto;
     height: auto;
+}
+
+.subscribes .unscribe{
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 12px;
+    line-height: 13px;
+    color: #ccc;
+    opacity: 0;
+}
+.subscribes>div:hover .unscribe{
+    opacity: 1;
+}
+.subscribes .unscribe-text{
+    position: absolute;
+    top: 0;
+    right: -90px;
+    color: #777;
+    background-color: #fff;
+    transition: all 1s;
+}
+.subscribes .unscribe:hover .unscribe-text{
+    right: 0;
 }
 </style>

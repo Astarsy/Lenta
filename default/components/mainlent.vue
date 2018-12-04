@@ -14,6 +14,15 @@
             <span class="user-name">{{ user.name }}</span>
         </div>
 
+        <div v-if="tab.user" class="tab-title">
+            <span class="user-title">
+                <img v-if="tab.user.avatar" class="avatar"
+                    :src="'/img/avatars/'+tab.user.avatar">
+                <span class="user-name">{{ tab.user.name }}</span>
+            </span>
+            <span class="subscribe-button">Подписаться</span>
+        </div>
+
         <adder v-if="adding_mode"
             :post="edited_post"
             @delete="onPostDelClick"
@@ -24,6 +33,7 @@
             :curuser="user"
             :data="post"
             :canedit="canedit"
+            :hidetitle="tab.user"
             @edit="onPostEdit(post)"
             @user-click="onPostUserClick"></post>
 
@@ -243,5 +253,26 @@ console.dir(responce.body)
     font-weight: bold;
     font-size: 20px;
     color: #8600D7;
+}
+.tab-title{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.tab-title .avatar,
+.tab-title .user-name{
+    cursor: default;
+}
+.user-title{
+    display: flex;
+    align-items: center;
+}
+.subscribe-button{
+    font-size: 18px;
+    padding: 4px 8px;
+    font-weight: bold;
+    color: #3b3;
+    border: 2px solid #3b3;
+    cursor: pointer;
 }
 </style>

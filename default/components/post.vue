@@ -9,14 +9,14 @@
             @confirmed="onConfirmPostDel"
             @closed="onFlashMessageClosed"></flashmessage>
 
-        <div class="post-title"
+        <div v-if="!hidetitle" class="post-title"
             :class="{ 'status-new' : data.status=='new' }">
-            <img class="avatar" v-if="data.user_avatar"
+            <img v-if="data.user_avatar" class="avatar"
                 :src="'/img/avatars/'+data.user_avatar"
-                @click="onUserClick({id:data.user_id,name:data.user_name})">
+                @click="onUserClick({id:data.user_id,name:data.user_name,avatar:data.user_avatar})">
             <span>
                 <span class="user-name"
-                    @click="onUserClick({id:data.user_id,name:data.user_name})">{{ data.user_name }}</span>
+                    @click="onUserClick({id:data.user_id,name:data.user_name,avatar:data.user_avatar})">{{ data.user_name }}</span>
                 <span v-if="data.status=='new'">Новая публикация</span>
                 <span>{{ data.updated_at | date }}</span>
                 <span v-if="data.access" class="access" title="Приватная публикация">!</span>
@@ -68,6 +68,10 @@ module.exports = {
             default: false
         },
         curuser:{
+            type: Object,
+            default: null
+        },
+        hidetitle:{
             type: Object,
             default: null
         }

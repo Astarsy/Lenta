@@ -1,5 +1,12 @@
 <template>
     <div class="ldb">
+
+        <flashmessage
+            v-if="message"
+            :parent="this"
+            :message="message"
+            @closed="onMsgClosed"></flashmessage>
+
         <div class="l-panel">
             <div class="tabs">
                 <div class="tab" 
@@ -41,7 +48,8 @@
                 <keep-alive>
                     <subscribes v-if="subscribes"
                         :data="subscribes"
-                        @click="onSubscribeClick"></subscribes>
+                        @open="onSubscribeOpen"
+                        @unscribe="onUnscribe"></subscribes>
                 </keep-alive>
             </div>
         </div>
@@ -51,12 +59,14 @@
 <script>
 var mainlent=require('./mainlent.vue')
 var subscribes=require('./subscribes.vue')
+var flashmessage=require('./flashmessage.vue')
 
 module.exports = {
     data: function(){
         return {
             tabs: null,
             user_tabs: null,
+            message: null,
             timeout: 60000,
             current: null,
             user: null,
@@ -68,11 +78,55 @@ module.exports = {
     props: {
     },
     methods: {
-        onSubscribeClick(item){
-            this.onOpenUserLent({id:item.id,name:item.name,type:'user',params:{uid:item.id}})
+        onMsgClosed(){
+            this.message=null
+        },
+        onUnscribe(item){
+            // console.dir(item)
+            // Нажата кнопка Отписаться - отаравить запрос на отписку,
+            // оптимистик: удалить Вкладку п-ля, Subscribes
+
+            var data=new FormData()
+            data.append('id',item.id);
+
+            this.$http.post(window.location.origin+"/api/unscribe",data).then(function(responce){
+// console.dir(responce.body)
+                    this.message={
+                        style: 'ok',
+                        type: 'info',
+                        text: "Вы успешно отписаны от "+item.name
+                    }
+
+                    var s=this.getSubscribeById(item.id)
+                    if(s)this.subscribes.splice(this.subscribes.indexOf(s),1)
+                    var tab=this.getUserTabById(item.id)
+                    this.onTabClose(tab)
+
+                },
+                function(responce){
+// console.dir(responce.body)
+                    this.message={
+                        style: 'danger',
+                        type: 'info',
+                        text: "Не удалось отписаться..."
+                    }
+                })
+
+        },
+        onSubscribeOpen(item){
+            console.dir(item)
+            this.onOpenUserLent({
+                id:item.id,
+                name:item.name,
+                type:'user',
+                avatar:item.avatar,
+                params:{uid:item.id}
+            })
         },
         onTabClose(tab){
+            if(!this.user_tabs)return null
             this.user_tabs.splice(this.user_tabs.indexOf(tab),1)
+            this.current=this.tabs[0]
         },
         onOpenUserLent(user){
             // Создать вкладку пользователя
@@ -80,7 +134,8 @@ module.exports = {
                 id:user.id,
                 name:user.name,
                 type:'user',
-                params:{uid:user.id}
+                params:{uid:user.id},
+                user: user
             }
             if(null===this.user_tabs)this.user_tabs=[new_tab]
             else if(null===this.getUserTabById(new_tab.id)){
@@ -89,7 +144,14 @@ module.exports = {
             }
             this.current=new_tab
         },
+        getSubscribeById(uid){
+            for(var i=0;i<this.subscribes.length;i++){
+                if(this.subscribes[i].id===uid)return this.subscribes[i]
+            }
+            return null
+        },
         getUserTabById(uid){
+            if(!this.user_tabs)return null
             for(var i=0;i<this.user_tabs.length;i++){
                 if(this.user_tabs[i].id===uid)return this.user_tabs[i]
             }
@@ -120,7 +182,8 @@ module.exports = {
     },
     components: {
         mainlent,
-        subscribes
+        subscribes,
+        flashmessage
     }
 }
 </script>
