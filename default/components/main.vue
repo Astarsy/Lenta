@@ -26,7 +26,7 @@
             :key="current.name"
             ref="curcomp"
             :tab="current"
-            :canadd="this.current.canadd"
+            :canadd="current.canadd"
             @open-user-lent="onOpenUserLent"></mainlent>
         </keep-alive>
         <div class="r-panel">
@@ -38,10 +38,11 @@
                 <div class="button"
                     @click="onTestClick"
                     >Update</div>
-                <span class="button">R-line 1</span>
-                <span class="button">R-line 2</span>
-                <span class="button">R-line 3</span>
-                <span class="button">R-line 4</span>
+                <keep-alive>
+                    <subscribes v-if="subscribes"
+                        :data="subscribes"
+                        @click="onSubscribeClick"></subscribes>
+                </keep-alive>
             </div>
         </div>
     </div>
@@ -49,6 +50,7 @@
 
 <script>
 var mainlent=require('./mainlent.vue')
+var subscribes=require('./subscribes.vue')
 
 module.exports = {
     data: function(){
@@ -58,6 +60,7 @@ module.exports = {
             timeout: 60000,
             current: null,
             user: null,
+            subscribes: null,
             refreshTimerId: null,
             curcomp: null
         }
@@ -65,6 +68,9 @@ module.exports = {
     props: {
     },
     methods: {
+        onSubscribeClick(item){
+            this.onOpenUserLent({id:item.id,name:item.name,type:'user',params:{uid:item.id}})
+        },
         onTabClose(tab){
             this.user_tabs.splice(this.user_tabs.indexOf(tab),1)
         },
@@ -106,6 +112,7 @@ module.exports = {
     created(){
         var d=this.getStartData()
         if(d.user)this.user=d.user
+        if(d.subscribes)this.subscribes=d.subscribes
         this.tabs=d.tabs
         this.timeout=d.timeout
         this.current=this.tabs[0]
@@ -113,6 +120,7 @@ module.exports = {
     },
     components: {
         mainlent,
+        subscribes
     }
 }
 </script>
@@ -120,9 +128,6 @@ module.exports = {
 <style>
 html,
 body{
-/*    display: flex;
-    min-height: 100%;
-    min-width: 100%;*/
     margin: 0;
     padding: 0;
 }
