@@ -34,7 +34,9 @@
             ref="curcomp"
             :tab="current"
             :canadd="current.canadd"
-            @open-user-lent="onOpenUserLent"></mainlent>
+            :subscribes="subscribes"
+            @open-user-lent="onOpenUserLent"
+            @subscribe="onSubscribe"></mainlent>
         </keep-alive>
         <div class="r-panel">
             <div class="r-tabs">
@@ -81,8 +83,31 @@ module.exports = {
         onMsgClosed(){
             this.message=null
         },
+        onSubscribe(uid){
+            // Нажата кнопка Подписаться - отправить запрос на Подписку,
+            // оптимистик: добавить полученные в ответе данные п-ля в Subscribes
+            var data=new FormData()
+            data.append('uid',uid);
+            this.$http.post(window.location.origin+"/api/subscribe",data).then(function(responce){
+console.dir(responce.body)
+                    var user=responce.body
+                    this.message={
+                        style: 'ok',
+                        type: 'info',
+                        text: "Вы успешно подписаны на "+user.name
+                    }
+                    this.subscribes.push(user)
+                },
+                function(responce){
+console.dir(responce.body)
+                    this.message={
+                        style: 'danger',
+                        type: 'info',
+                        text: "Не удалось прдписаться..."
+                    }
+                })
+        },
         onUnscribe(item){
-            // console.dir(item)
             // Нажата кнопка Отписаться - отаравить запрос на отписку,
             // оптимистик: удалить Вкладку п-ля, Subscribes
 
@@ -114,7 +139,7 @@ module.exports = {
 
         },
         onSubscribeOpen(item){
-            console.dir(item)
+            // console.dir(item)
             this.onOpenUserLent({
                 id:item.id,
                 name:item.name,

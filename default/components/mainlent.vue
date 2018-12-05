@@ -20,7 +20,9 @@
                     :src="'/img/avatars/'+tab.user.avatar">
                 <span class="user-name">{{ tab.user.name }}</span>
             </span>
-            <span class="subscribe-button">Подписаться</span>
+            <span v-if="cansubscribe" class="subscribe-button"
+                @click="onSubscribe">Подписаться</span>
+            <span v-else class="subscribe-text">Подписка</span>
         </div>
 
         <adder v-if="adding_mode"
@@ -58,9 +60,16 @@ module.exports={
     },
     props:{
         tab: Object,
-        canadd: Boolean
+        canadd: Boolean,
+        subscribes:{
+            type: Array,
+            default: null
+        }
     },
     methods: {
+        onSubscribe(){
+            this.$emit('subscribe',this.posts[0].user_id)
+        },
         onPostUserClick(user){
             this.$emit('open-user-lent',user)
         },
@@ -189,8 +198,8 @@ module.exports={
             if(this.tab.params)options.params=Object.assign(options.params,this.tab.params)
             this.$http.get(window.location.origin+"/api/"+this.tab.type,options).then(function(responce){                
 
-console.log('last update '+this.lastupdate)
-console.dir(responce.body)
+// console.log('last update '+this.lastupdate)
+// console.dir(responce.body)
 
                     if(responce.body=='Ok')return
                     if (!responce.body.posts){
@@ -202,7 +211,7 @@ console.dir(responce.body)
                         this.lastupdate=responce.body.lastupdate
                     }
                 },function(responce){  
-console.dir(responce.body)                  
+// console.dir(responce.body)                  
                     if(responce.status==403){
                         // try to refresh access for current user by reloading the page
                         // console.log('403')
@@ -221,7 +230,17 @@ console.dir(responce.body)
         this.request()
     },
     computed:{
-        canedit:function(){
+        cansubscribe(){
+            // console.dir(this.subscribes)
+            // console.dir(this.posts)
+            if(!this.subscribes || !this.posts || !this.posts[0])return false
+            var auth_id=this.posts[0].user_id
+            for(var i=0;i<this.subscribes.length;i++){
+                if(this.subscribes[i].id===auth_id)return false
+            }
+            return true
+        },
+        canedit: function(){
             return this.canadd && !this.adding_mode
         }
     },
@@ -274,5 +293,9 @@ console.dir(responce.body)
     color: #3b3;
     border: 2px solid #3b3;
     cursor: pointer;
+}
+.subscribe-text{
+    color: #8600D7;
+    font-style: italic;
 }
 </style>

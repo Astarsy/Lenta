@@ -35,7 +35,7 @@ module.exports = {
         }
     },
     created(){
-        console.dir(this._data)
+        // console.dir(this._data)
     }
 }
 </script>
