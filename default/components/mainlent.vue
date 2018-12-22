@@ -74,6 +74,7 @@ module.exports={
             this.$emit('open-user-lent',user)
         },
         onPostEdit(post){
+            console.dir(post)
             this.edited_post=post,
             this.adding_mode=true
         },
@@ -215,6 +216,8 @@ module.exports={
                     if(responce.status==403){
                         // try to refresh access for current user by reloading the page
                         // console.log('403')
+// console.dir(this.tab)
+                        document.cookie='cur_url='+this.tab.type+';path=/;'
                         window.location='/html/login'
                     }else{                        
                         // this.message={
@@ -260,6 +263,7 @@ module.exports={
     /*border-top: 2px solid #ddd;*/
     margin: 0 2px;
     /*width: 80%;*/
+    overflow: hidden;
 }
 .my-pannel{
     display: flex;

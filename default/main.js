@@ -34,6 +34,12 @@ new Vue({
                     }
                 }
                 return newObj;
+            },
+            getCoockie(name){
+                if(!name)return;
+                var r = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
+                if (r) return r[2];
+                else return "";
             }
         }
     }

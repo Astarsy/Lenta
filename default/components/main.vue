@@ -89,7 +89,7 @@ module.exports = {
             var data=new FormData()
             data.append('uid',uid);
             this.$http.post(window.location.origin+"/api/subscribe",data).then(function(responce){
-console.dir(responce.body)
+// console.dir(responce.body)
                     var user=responce.body
                     this.message={
                         style: 'ok',
@@ -99,7 +99,7 @@ console.dir(responce.body)
                     this.subscribes.push(user)
                 },
                 function(responce){
-console.dir(responce.body)
+// console.dir(responce.body)
                     this.message={
                         style: 'danger',
                         type: 'info',
@@ -182,7 +182,15 @@ console.dir(responce.body)
             }
             return null
         },
-        onTabClick(tab){
+        getTabByType(type){
+            if(!this.tabs)return null
+            for(var i=0;i<this.tabs.length;i++){
+                if(this.tabs[i].type===type)return this.tabs[i]
+            }
+            return null
+        },
+        onTabClick(tab){           
+            if(this.user)document.cookie='cur_url='+tab.type+';path=/;'
             this.current=tab
         },
         onTestClick:function (e){
@@ -202,7 +210,12 @@ console.dir(responce.body)
         if(d.subscribes)this.subscribes=d.subscribes
         this.tabs=d.tabs
         this.timeout=d.timeout
+        var cu=this.$root.getCoockie('cur_url')
         this.current=this.tabs[0]
+        if(cu){
+            var t=this.getTabByType(cu)
+            if(null!==t)this.current=t
+        }
         this.tick()
     },
     components: {
@@ -216,6 +229,7 @@ console.dir(responce.body)
 <style>
 html,
 body{
+    height: 100%;
     margin: 0;
     padding: 0;
 }
