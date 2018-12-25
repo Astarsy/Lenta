@@ -11,17 +11,17 @@
             <div class="tabs">
                 <div class="tab" 
                     v-for="tab in tabs"
-                    v-bind:key="tab.name"
-                    v-bind:class="['tab-button',{ active: current.name === tab.name }]"
-                    v-on:click="onTabClick(tab)">
+                    :key="tab.name"
+                    :class="['tab-button',{ active: current.name === tab.name }]"
+                    @click="onTabClick(tab)">
                     {{ tab.name }}</div>
             </div>
             <div class="user-tabs">
                 <div class="tab" 
                     v-for="tab in user_tabs"
-                    v-bind:key="tab.name"
-                    v-bind:class="['tab-button',{ active: current.name === tab.name }]"
-                    v-on:click="onTabClick(tab)">
+                    :key="tab.name"
+                    :class="['tab-button',{ active: current.name === tab.name }]"
+                    @click="onTabClick(tab)">
                     {{ tab.name }}
                     <span class="tab-close" 
                         @click.stop="onTabClose(tab)" title="Закрыть вкладку">X</span>
@@ -40,10 +40,10 @@
         </keep-alive>
         <div class="r-panel">
             <div class="r-tabs">
-                <a v-if="!user" class="button enter" href="http://100tkaney.loc/lenta">
-                Войти</a>
-                <a v-else class="button enter" href="/html/out">
-                Выйти</a>
+
+                <userbar
+                    :user="user"></userbar>
+
                 <div class="button"
                     @click="onTestClick"
                     >Update</div>
@@ -62,6 +62,7 @@
 var mainlent=require('./mainlent.vue')
 var subscribes=require('./subscribes.vue')
 var flashmessage=require('./flashmessage.vue')
+var userbar=require('./userbar.vue')
 
 module.exports = {
     data: function(){
@@ -221,7 +222,8 @@ module.exports = {
     components: {
         mainlent,
         subscribes,
-        flashmessage
+        flashmessage,
+        userbar
     }
 }
 </script>

@@ -1,11 +1,14 @@
 {
-  "name": "Tkanusha",
+  "name": "Lenta",
   "version": "1.0.0",
-  "description": "Tkanusha.ru spa components",
+  "description": "Lenta spa components",
   "author": "Astarsy <astarsy@mail.ru>",
   "scripts": {    
     "watch": "watchify -vd -p browserify-hmr -e default/main.js -o ../../lenta/www/js/default.js",
-    "prod": "cross-env NODE_ENV=production browserify -g envify -e default/main.js | uglifyjs -c warnings=false -m > ../../lenta/www/js/default.js"
+    "prod": "cross-env NODE_ENV=production browserify -g envify -e default/main.js | uglifyjs -c warnings=false -m > ../../lenta/www/js/default.js",
+
+    "profile_watch": "watchify -vd -p browserify-hmr -e profile/main.js -o ../../lenta/www/js/profile.js",
+    "profile_prod": "cross-env NODE_ENV=production browserify -g envify -e profile/main.js | uglifyjs -c warnings=false -m > ../../lenta/www/js/profile.js"
   },
   "browserify": {
     "transform": [
