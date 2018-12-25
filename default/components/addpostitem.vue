@@ -83,7 +83,6 @@
 </template>
 
 <script>
-var inputex=require('./inputex.vue')
 var fileadder=require('./file_adder.vue')
 module.exports = {
     data: function(){
@@ -130,7 +129,7 @@ module.exports = {
             this.setCounter()
         },
         onOk(){
-            var t=this.$refs[this.ref].innerText.trim()
+            var t=this.$refs[this.ref].innerText.trim().substring(0,document.mag_start_data.max_post_item_text_length)
             if(t=='')this.deleted=true
             this.data.text=t
             this.edit_mode=false

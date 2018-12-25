@@ -45,6 +45,16 @@
             </div>
         </div>
 
+        <div>
+            <span class="comment-head"
+                @click.stop="is_comments_open=!is_comments_open">Комментариев</span>
+            <span v-if="data.comments_count>0">{{ data.comments_count }}</span>
+            <span v-else>нет</span>
+            <span class="comment-simbol">{{ comment_simbol }}</span>
+            <comments v-if="is_comments_open"
+                :data="data"></comments>
+        </div>
+
         <div v-if="canedit"
             class="edit"
             title="Редактировать публикацю"
@@ -55,9 +65,11 @@
 
 <script>
 var flashmessage=require('./flashmessage.vue')
+var comments=require('./comments.vue')
 module.exports = {
     data: function(){
         return{
+            is_comments_open: false
             // user: document.mag_start_data.user
         }
     },
@@ -77,6 +89,9 @@ module.exports = {
         }
     },
     methods: {
+        onCommentsCountClick(){
+            console.log('show comments for post '+this.data.id)
+        },
         onUserClick(uid){
             this.$emit('user-click',uid)
         },
@@ -96,6 +111,10 @@ module.exports = {
         }
     },
     computed:{
+        comment_simbol:function(){
+            if(this.is_comments_open)return '^'
+            else return 'v'
+        },
         // avatar:function(){
         //     return "/img/avatars/"+this.curuser.user_avatar
         // },
@@ -110,7 +129,8 @@ module.exports = {
         // console.dir(this.data)
     },
     components: {
-        flashmessage
+        flashmessage,
+        comments
     }
 }
 </script>
@@ -218,5 +238,17 @@ module.exports = {
 }
 .text{
     margin-left: 8px;
+}
+.comment-box{
+    color: #888;
+    font-style: italic;
+    user-select: none;
+}
+.comment-head{
+    cursor: pointer;
+}
+.comment-simbol{
+    font-style: normal;
+    font-size: 14px;
 }
 </style>

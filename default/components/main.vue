@@ -325,6 +325,7 @@ a.button{
     border-color: #00AA17;
 }
 .cancel{
+    color: #888;
     border-radius: 100px;
     font-size: 16px;
 }
@@ -345,17 +346,10 @@ a.button{
     justify-content: center;
     align-items: center;
     font-size: 18px;
-    width: 100px;
-    height: 100px;
-
-    /*padding: 4px 16px;*/
-    /*margin-right: -6px;*/
+    width: 100%;
+    height: 80px;
     color: #8600D7;
     border: 1px solid #8600D7;
-    /*border-bottom: none;*/
-    /*border-top-right-radius: 20px;*/
-    /*border-top-left-radius: 20px;*/
-    /*background-color: #f8f8f8;*/
     user-select: none;
     cursor: pointer;
     z-index: 0;
@@ -364,11 +358,7 @@ a.button{
     border-bottom: none;
 }
 .tab.active{
-    /*margin-top: 0;*/
     background-color: #fff;
-    /*border-color: #d8d8d8;*/
-    /*border-bottom: 2px solid #fff;*/
-    /*margin-bottom: -2px;*/
     cursor: default;
     z-index: 1;
 }
