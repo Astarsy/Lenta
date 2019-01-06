@@ -6,8 +6,8 @@
             :key="data.id"
             :parent="data"
             :message="data.message"
-            @confirmed="onConfirmPostDel"
-            @closed="onFlashMessageClosed"></flashmessage>
+            @ok="onConfirmPostDel"
+            @close="onFlashMessageClosed"></flashmessage>
 
         <div v-if="!hidetitle" class="post-title"
             :class="{ 'status-new' : data.status=='new' }">

@@ -5,7 +5,7 @@
             v-if="message"
             :parent="this"
             :message="message"
-            @closed="onMsgClosed"></flashmessage>
+            @close="onMsgClosed"></flashmessage>
 
         <div class="l-panel">
             <div class="tabs">
@@ -371,5 +371,14 @@ a.button{
     display: flex;
     font-size: 12px;
     cursor: pointer;
+}
+
+.fotos.ico .foto{
+    width: auto;
+    height: auto;
+}
+.fotos.mini .foto{
+    width: auto;
+    height: auto;
 }
 </style>

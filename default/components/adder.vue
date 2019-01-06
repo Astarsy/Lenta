@@ -5,7 +5,7 @@
             v-if="message"
             :parent="this"
             :message="message"
-            @closed="onFlashMessageClosed"></flashmessage>
+            @close="onFlashMessageClosed"></flashmessage>
 
         <div class="head">
             <h3 v-if="is_new">Создать публикацию</h3>
@@ -17,7 +17,7 @@
         <div class="post"
             :style="{ 'background-color' : bg_color }">
 
-            <span class="delete-post" @click.stop="onDelete" title="Удалить всю публикацию">✘</span>
+            <span v-if="post.id" class="delete-post" @click.stop="onDelete" title="Удалить всю публикацию">✘</span>
 
             <div class="post-title"
                 :class="{ 'status-new' : data.status=='new' }">
@@ -28,7 +28,7 @@
             <postitem v-for="(item,k) in data.items"
                 class="item-box"
                 :ref="'item_'+k"
-                :key="k"
+                :key="item_component_key+k"
                 :index="k"
                 :itemscount="data.items.length"
                 :class="getItemClass(item)"
@@ -36,7 +36,8 @@
                 :canedit='true'
                 @changed="onItemsChanged"
                 @editmodechanged="onEditmodeChanged"
-                @alignchanged="onAlignChanged"></postitem>
+                @alignchanged="onAlignChanged"
+                @delete="onItemDelete"></postitem>
 
             <span v-if="data.items.length<max_post_items_count"
                 class="add-item-button" 
@@ -67,7 +68,8 @@ var toggleinput=require('./toggleinput.vue')
 module.exports = {
     data: function(){
 // console.dir(this.post)
-        return{         
+        return{
+            item_component_key: 0,
             max_items_count: 3,
             data: this.$root.deepCopy(this.post),
             edit_mode: false,
@@ -79,6 +81,11 @@ module.exports = {
         post: Object        
     },
     methods: {
+        onItemDelete(elem){
+            this.data.items.splice(elem.index,1)
+            if(this.data.items.length<1)this.data.items.unshift(this.getNewItem())
+            this.item_component_key+=10; // force to redraw
+        },
         onFlashMessageClosed(){
             this.message=null
         },
@@ -100,22 +107,29 @@ module.exports = {
             return count
         },
         onSendClick: function(){
+            if(!this.can_save)return
+
             var items=[]
             var files=[]
             var item_of_file=[]
             var item_counter=0
 
             Object.entries(this.$refs).forEach(entry=>{
+                var k=entry[0]
                 var item_body=entry[1][0]
 
-                if(item_body.deleted)return
+                if(!item_body)return
 
-                if( !item_body.data.text 
-                    && (!item_body.fotos || item_body.fotos.length==0)
-                    &&(!item_body.files || item_body.files.length==0))return
+                var item_data=item_body.data
 
-                var k=entry[0]
-                var item_data=entry[1][0].data
+                if(item_data.deleted)return
+
+                if( !item_data.text
+                    && (!item_data.fotos || item_data.fotos.length===0)
+                    &&(!item_data.files || item_data.files.length===0))return
+
+//                console.dir(item_data)
+//                return
 
                 if(item_data.fotos){
                     item_data.foto_names=[]
@@ -128,14 +142,14 @@ module.exports = {
                 }
 
                 if(item_data.files){
-                    item_data.files=[]
+                    let file_names=[]
                     for(var i=0;i<item_data.files.length;i++){
                         var file=item_data.files[i]
-                        item_data.files.push(file.name)
+                        file_names.push(file.name)
                         files.push(file)
                         item_of_file.push(item_counter)
                     }
-
+                    item_data.files=file_names
                 }
 
                 items.push(item_data)
@@ -167,9 +181,7 @@ module.exports = {
         },
         onAddItem(){
             if(this.edit_mode)return
-            this.data.items.splice(this.data.items.length,0,
-                    {fotos_align:'center',tag:'text',text:'',fotos:[], fotos_class:'mini'}
-                )
+            this.data.items.splice(this.data.items.length,0,this.getNewItem())
         },
         onColorChoice(v){
             this.data.bgci=v
@@ -186,12 +198,13 @@ module.exports = {
             }
 
             this.$http.post(window.location.origin+"/api/add",data).then(function(responce){
-// console.dir(responce)
-                    if(undefined==post.id){
-                        post.id=responce.data
-                        post.is_new=true
+
+// console.dir(responce.body)
+                    let res_post=responce.body
+                    if(undefined===post.id){
+                        res_post.is_new=true
                     }
-                    this.$emit('message-setn',post)
+                    this.$emit('message-setn',res_post)
                 },
                 function(responce){
 // console.dir(responce)
@@ -204,6 +217,9 @@ module.exports = {
         },
         onCloseClick: function(){
             this.$emit('adder-close')
+        },
+        getNewItem(){
+            return {fotos_align:'center',tag:'text',text:'',fotos:[], fotos_class:'mini'}
         }
     },
     computed:{
@@ -279,6 +295,7 @@ module.exports = {
     cursor: pointer;
     border-radius: 40px;
     opacity: .5;
+    z-index: 1;
 }
 .delete-post:hover{
     opacity: 1;

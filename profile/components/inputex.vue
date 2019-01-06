@@ -1,16 +1,13 @@
 <template>
-    <div class="inputex" :class="{ danger:danger }">
-        <textarea v-model="text"
-            @input="onInput"></textarea>
-        <div class="ok">{{ counter }}</div>
-        <div class="buttons">
-            <span class="button ok"
-                @click.prevent="onOkClick"
-                title="Готово">✔</span>
-            <span class="button cancel"
-                @click.stop="onCancelClick"
-                title="Отменить">✘</span>
-        </div>
+    <div class="inputex">
+        <input v-model="text"
+            @input="onInput">
+        <div class="counter ok" :class="{ danger:danger }">{{ counter }}</div>
+        <span :class="{ disabled : !is_btn_active }"
+            class="button cancel"
+            @click.stop="onCancelClick"
+            title="Отменить">✘</span>
+        <div v-if="danger" class="msg">{{ msg }}</div>
     </div>
 </template>
 
@@ -26,6 +23,10 @@ module.exports = {
     },
     props:{
         value: String,
+        minlength:{
+            type: Number,
+            default: 3
+        },
         maxlength: Number
     },
     methods: {
@@ -42,13 +43,31 @@ module.exports = {
         }
     },
     computed:{
+        is_btn_active: function(){
+            return this.old_text!==this.text
+        },
+        changed: function(){
+            return this.old_text!==this.text
+        },
         counter: function (){
             if(undefined===this.text)return this.maxLength
             var r=this.maxLength-this.text.length
-            if(r<5)this.danger=true
-            else this.danger=false
-            if(r<0)r='Сообщение слишком длинное! Последние '+(-r)+' знаков будут потеряны!'
+            if(this.text.length<this.minlength){
+                this.danger=true
+                this.msg='Имя слишком короткое'
+            }else if(r<0){
+                this.danger=true
+                this.msg='Имя слишком длинное'
+            }else{
+                this.danger=false
+                this.msg=null
+            }
             return r
+        }
+    },
+    watch:{
+        is_btn_active: function(n,o){
+            this.$emit('active-changed',n)
         }
     }
 }
@@ -60,5 +79,11 @@ module.exports = {
 .inputex>*:not(:last-child),
 .inputex .button:not(:last-child){
     margin-right: 4px;
+}
+.inputex .counter{
+    cursor: default;
+}
+.inputex .danger{
+    color: red;
 }
 </style>

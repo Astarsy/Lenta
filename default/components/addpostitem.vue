@@ -73,7 +73,7 @@
                     placeholder="Напишите здесь что-нибудь интересное или добавьте фото!"
                     :contenteditable="edit_mode"
                     @input="onInput"
-                    v-html="item.text"></div>
+                    v-html="text"></div>
                 <div class="stub" style="clear: both;"></div>
             </div>
 
@@ -91,6 +91,7 @@ module.exports = {
                         class: '',
                         title: 'Максимальная длина текста -'+document.mag_start_data.max_post_item_text_length+'  знаков'
                     },
+            text: this.item.text,
             edit_mode: false,
             show_fileadder: false,
             tools_fixed: false,
@@ -127,10 +128,14 @@ module.exports = {
         },
         onInput(){
             this.setCounter()
+            this.item.text=this.$refs[this.ref].innerText.trim().substring(0,document.mag_start_data.max_post_item_text_length)
         },
         onOk(){
             var t=this.$refs[this.ref].innerText.trim().substring(0,document.mag_start_data.max_post_item_text_length)
-            if(t=='')this.deleted=true
+//            console.dir(this.data.files)
+            if(t==''
+                && (!this.data.files || this.data.files.length===0)
+                && (!this.data.fotos || this.data.fotos.length===0))this.deleted=true
             this.data.text=t
             this.edit_mode=false
             this.show_fileadder=false
@@ -145,8 +150,10 @@ module.exports = {
             this.data=this.$root.deepCopy(this.item)
         },
         onDelete(){
-            this.deleted=true
-            return this.onOk()
+            this.$emit('delete',this)
+            this.edit_mode=false
+//            this.deleted=true
+//            return this.onOk()
         },
         onFileadderOpen(){
             this.show_fileadder=true
@@ -158,6 +165,7 @@ module.exports = {
             this.data.fotos.splice(i,1)
         },
         onFotoChanged(files,filedata){
+
             this.data.files=files
             this.data.filedata=filedata
 
@@ -184,8 +192,7 @@ module.exports = {
             var fotos=this.data.fotos
             if(undefined===fotos || !(fotos instanceof Array))return[]
             var max=this.max_fotos_count
-            var res=fotos.slice(0,max)
-            return res
+            return fotos.slice(0,max)
         },
         available_files:function(){
             var files=this.data.filedata

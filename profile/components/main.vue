@@ -7,13 +7,21 @@
             <fileadder
                 :editmode="true"
                 title="Сменить аватар"
-                @changed="onFotoChanged"></fileadder>
+                @changed="onFotoChanged"
+                @active-changed="onFotoActiveChanged"
+                @cancel="onFotoCancel"></fileadder>
         </div>
 
         <inputex
             :value="user.name"
-            :maxlength="30"
-            @input="onInput"></inputex>
+            :maxlength="20"
+            @input="onInput"
+            @active-changed="onNameChanged"></inputex>
+
+        <div class="button send"
+            :class="{ disabled : !is_ok_btn_active }"
+            @click="onOk">Готово</div>
+
     </div>
 </template>
 
@@ -23,25 +31,60 @@ let inputex=require('./inputex.vue')
 module.exports = {
     data: function(){
         return {
-            user:document.mag_start_data.user,
+            user: document.mag_start_data.user,
             image_url: null,
+            is_name_changed: false,
+            is_avatar_changed: false,
+            file: null
         }
     },
-    props: {
-    },
     methods: {
+        onOk(){
+            if(!this.is_ok_btn_active)return
+            this.request()
+        },
+        onFotoActiveChanged(v){
+            this.is_avatar_changed=v
+        },
+        onNameChanged(v){
+            this.is_name_changed=v
+        },
         onInput(text){
             this.$set(this.user,'name',text)
         },
-        onFotoChanged(file,file_data){
+        onFotoCancel(){
+            this.image_url=this.getAvatarUrl(this.user.avatar)
+        },
+        onFotoChanged(files,file_data){
             this.image_url=file_data.pop().image
+            this.file=files[0]
+        },
+        request(){
+            let data=new FormData()
+            if(this.is_name_changed)data.append('name',this.user.name)
+            if(this.is_avatar_changed)data.append('userFiles[]',this.file)
+            this.$http.post(window.location.origin+"/api/saveprofile",data).then(function(responce){
+ console.dir(responce.body)
+                },
+                function(responce){
+ console.dir(responce)
+                })
+        },
+        getAvatarUrl(n){
+            return '/img/avatars/'+this.getAvatarName(n)
+        },
+        getAvatarName(n){
+            if(n)return n
+            else return 'anonim.png'
         }
     },
     created(){
-        let s='/img/avatars/'
-        if(this.user.avatar)s+=this.user.avatar
-        else s+='anonim.png'
-        this.image_url=s
+        this.image_url=this.getAvatarUrl(this.user.avatar)
+    },
+    computed:{
+        is_ok_btn_active: function(){
+            return this.is_name_changed || this.is_avatar_changed
+        }
     },
     components: {
         fileadder,
@@ -66,7 +109,7 @@ module.exports = {
     height: 100%;
 }
 .profile-js .button{
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
     width: 24px;
@@ -74,6 +117,12 @@ module.exports = {
     cursor: pointer;
     border: 1px solid;
     border-radius: 4px;
+    user-select: none;
+}
+.profile-js .button.send{
+    color: #0a0;
+    border-color: #0a0;
+    width: 80px;
 }
 .profile-js .ok,
 .profile-js .button.ok{
@@ -83,5 +132,12 @@ module.exports = {
 .profile-js .button.cancel{
     color: #aaa;
     border-color: #aaa;
+}
+.profile-js .disabled{
+    opacity: .4;
+    cursor: default;
+}
+.icon-box>*:not(:last-child){
+    margin-right: 4px;
 }
 </style>

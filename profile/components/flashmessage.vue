@@ -1,17 +1,17 @@
 <template>
-    <div v-if="msg"
+    <div v-if="message"
         class="flashmessage"
          :class="message.style">
         <div class="sys-buttons">
             <div class="button-close" @click="onClose" title="Скрыть">✘</div>
         </div>
         
-        <div class="msg">{{msg}}</div>
+        <div class="msg">{{ message.text }}</div>
 
-        <div v-if="type=='info'" class="buttons">
+        <div v-if="message.type=='info'" class="buttons">
             <span class="button ok" @click="onClose">Закрыть</span>
         </div>
-        <div v-else-if="type=='confirm'" class="buttons">
+        <div v-else-if="message.type=='confirm'" class="buttons">
             <span class="button ok" @click="onOk">Подтвердить</span>
             <span class="button cancel" @click="onClose">Отменить</span>                
         </div>
@@ -22,31 +22,17 @@
 module.exports = {
     data: function(){
         return{
-            msg: null,
-            type: null
         }
     },
     props:{
-        message: Object,
-        parent: Object
-    },
-    watch:{
-        text:function(newval,oldval){
-            this.msg=newval
-        }
+        message: Object
     },
     methods:{
         onOk(){
-            this.$emit('confirmed',this.parent)
+            this.$emit('ok')
         },
         onClose(){
-            this.$emit('closed',this.parent)
-        }
-    },
-    created(){
-        if(undefined!==this.message){
-            this.msg=this.message.text
-            this.type=this.message.type
+            this.$emit('close')
         }
     }
 }
@@ -83,6 +69,11 @@ module.exports = {
 }
 .flashmessage .buttons{
     text-align: center;
+}
+.flashmessage .button{
+    width: auto;
+    height: auto;
+    padding: 2px 6px;
 }
 .flashmessage .button-close{
     position: absolute;

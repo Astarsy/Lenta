@@ -1,6 +1,6 @@
 <template>
     <div class="file-adder">
-        <flash :text="flash" @closed="flash=''"></flash>
+        <flash :message="flash" @close="flash=null"></flash>
         <input :id="fileElem" type="file" accept="image/jpeg" style="display:none" @change.prevent="handleFiles" />
         <div class="foto add-button" v-if="this.canadd" @click.stop="onAddClick" title="Выбрать фото">✚</div>
 
@@ -12,7 +12,7 @@ var flash=require('./flashmessage.vue')
 module.exports = {
     data: function(){
         return{
-            flash: '',
+            flash: null,
             filedata: [],
             align: 'center',
         }
@@ -32,10 +32,14 @@ module.exports = {
             reader.onload= function(e){
                 var s=(e.loaded/1024/1024).toFixed(2)
                 if(e.loaded>4*1024*1024){
-                    vm.flash='Файл '+file.name+' слишком большой! ('+s+'Mb)'
+                    vm.flash={
+                        text: 'Файл '+file.name+' слишком большой! ('+s+'Mb)',
+                        style: 'danger',
+                        type: 'info'
+                    }
                     return
                 }
-                vm.flash=''
+                vm.flash=null
                 var image=new Image()
                 image.onload= function(){
                     // if(image.width<400 || image.height<400)return

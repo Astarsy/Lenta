@@ -39,7 +39,7 @@ module.exports = {
         }
     },
     created(){
-        console.dir(this.user)
+//        console.dir(this.user)
     }
 }
 </script>

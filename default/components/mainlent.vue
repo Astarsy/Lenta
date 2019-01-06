@@ -5,8 +5,8 @@
             v-if="message"
             :parent="this"
             :message="message"
-            @confirmed="onConfirmPostDel"
-            @closed="onFlashMessageClosed"></flashmessage>
+            @ok="onConfirmPostDel"
+            @close="onFlashMessageClosed"></flashmessage>
 
         <div v-if="canadd && !adding_mode" class="my-pannel" 
             @click="onAddPostClick">
@@ -74,13 +74,12 @@ module.exports={
             this.$emit('open-user-lent',user)
         },
         onPostEdit(post){
-            console.dir(post)
             this.edited_post=post,
             this.adding_mode=true
         },
         onFlashMessageClosed(post){
-            post.message=null
-            this.updatePost(post)
+            this.message=null
+//            this.updatePost(post)
         },
         deletePost(pid){
             var data=new FormData()
