@@ -39,6 +39,10 @@
             @edit="onPostEdit(post)"
             @user-click="onPostUserClick"></post>
 
+        <div class="button"
+            @click="onMore"
+            title="ещё">⟲</div>
+
     </div>
 </template>
 
@@ -67,6 +71,11 @@ module.exports={
         }
     },
     methods: {
+        onMore(){
+            this.curpage++
+            this.lastupdate=0
+            this.request()
+        },
         onSubscribe(){
             this.$emit('subscribe',this.posts[0].user_id)
         },
@@ -227,8 +236,17 @@ module.exports={
                     }
                 })
         },
+        onWindowScroll(){
+            let scrollHeight = Math.max(
+                document.body.scrollHeight, document.documentElement.scrollHeight,
+                document.body.offsetHeight, document.documentElement.offsetHeight,
+                document.body.clientHeight, document.documentElement.clientHeight
+            )
+            if(window.pageYOffset+window.innerHeight-scrollHeight<=-20)this.onMore()
+        }
     },
     created(){
+        window.addEventListener('scroll',this.onWindowScroll)
         this.request()
     },
     computed:{
