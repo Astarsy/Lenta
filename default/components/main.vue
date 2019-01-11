@@ -236,8 +236,10 @@ body{
     padding: 0;
 }
 .ldb{
+    position: relative;
     display: flex;
     min-width: 100%;
+    height: inherit;
     flex-wrap: wrap;
     align-items: flex-start;
     justify-content: center;
@@ -247,9 +249,10 @@ body{
     position: relative;
     display: flex;
     flex: 1 1 15%;
-    height: 100%;
+    height: inherit;
     width: 100%;
     max-width: 15%;
+    background-color: #f8f8f8;
 }
 .ldb .tabsheet{
     flex: 4 1 60%;
@@ -283,7 +286,6 @@ body{
 }
 .ldb .r-panel{
     flex-flow: column;
-
 }
 
 .h1,.h2,.h3,.h4{
@@ -363,6 +365,7 @@ a.button{
     background-color: #fff;
     cursor: default;
     z-index: 1;
+    border-right: none;
 }
 .tab-close{
     position: absolute;

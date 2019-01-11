@@ -120,7 +120,7 @@ module.exports = {
                     let item=responce.body
                     item.text=t
                     this.items.unshift(item)
-                    this.can_add=false
+                    this.can_add=responce.body.can_add
                 },function(responce){  
 //console.dir(responce.body)
                 })            
@@ -134,7 +134,7 @@ module.exports = {
                 }
             }
             this.$http.get(window.location.origin+"/api/getcomments",options).then(function(responce){
-//console.dir(responce.body)
+console.dir(responce.body)
                     if(responce.body.items.length>0){
                         this.updateItems(responce.body.items)
                         this.lastupdate=responce.body.lastupdate
