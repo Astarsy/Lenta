@@ -9,7 +9,7 @@
         <div class="icon-box">
             <div class="icon"
                     @click="is_open=!is_open">
-                <img :src="icon">
+                <img draggable="false" :src="icon">
             </div>
         </div>
         <div v-if="is_open">

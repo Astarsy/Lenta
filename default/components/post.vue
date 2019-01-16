@@ -11,9 +11,9 @@
 
         <div v-if="!hidetitle" class="post-title"
             :class="{ 'status-new' : data.status=='new' }">
-            <img v-if="data.user_avatar" class="avatar"
-                :src="'/img/avatars/'+data.user_avatar"
-                @click="onUserClick({id:data.user_id,name:data.user_name,avatar:data.user_avatar})">
+            <img draggable="false" class="avatar"
+                 :src="'/img/avatars/'+avatar"
+                 @click="onUserClick({id:data.user_id,name:data.user_name,avatar:data.user_avatar})">
             <span>
                 <span class="user-name"
                     @click="onUserClick({id:data.user_id,name:data.user_name,avatar:data.user_avatar})">{{ data.user_name }}</span>
@@ -33,7 +33,7 @@
                     :class="foto_class_safe(item)">
 
                     <div v-for="foto in item.fotos" class="foto">
-                        <img :src="getFotoSrc(item,foto)">
+                        <img draggable="false" :src="getFotoSrc(item,foto)">
                     </div>
 
                 </div>
@@ -111,6 +111,10 @@ module.exports = {
         }
     },
     computed:{
+        avatar: function(){
+            if(this.data.user_avatar)return this.data.user_avatar
+            else return 'anonim.png'
+        },
         comment_simbol:function(){
             if(this.is_comments_open)return '^'
             else return 'v'
@@ -176,14 +180,15 @@ module.exports = {
     align-items: baseline;
 }
 .avatar{
-    border-radius: 8px;
-    max-height: 40px;
-    max-width: 40px;
+    border-radius: 80px;
+    max-height: 38px;
+    max-width: 38px;
     cursor: pointer;
+    overflow: hidden;
 }
 .user-name{
     margin: 0 12px;
-    font-weight: bold;
+    /*font-weight: bold;*/
     cursor: pointer;
 }
 .post-title .access{

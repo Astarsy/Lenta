@@ -11,7 +11,7 @@
                 <div v-for="(foto,i) in available_fotos()"
                     class="foto"
                     :class="{ edited : edit_mode}">
-                    <img :src="getFotoSrc(foto)">
+                    <img draggable="false" :src="getFotoSrc(foto)">
                     <span v-if="edit_mode" class="tools">
                         <span class="tool delete" @click="onDeleteFoto(i)" title="Удалить фото">✘</span>
                     </span>
@@ -20,7 +20,7 @@
                 <div v-for="(i,index) in available_files()"
                     class="foto"
                     :class="{ edited : editmode }">
-                    <img :src="i.image">
+                    <img draggable="false" :src="i.image">
                     <span v-if="edit_mode" class="tools">
                         <span class="tool delete" @click="$refs.fileadder.onDeleteFoto(i)" title="Удалить фото">✘</span>
                     </span>

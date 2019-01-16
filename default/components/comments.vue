@@ -29,7 +29,7 @@
         <div v-for="item in items" class="comment">
             <div class="l-block">
                 <div class="ava-box">
-                    <img v-if="item.author_avatar"
+                    <img draggable="false" v-if="item.author_avatar"
                         :src="'/img/avatars/'+item.author_avatar"
                         @click="onAuthorClick({id:item.author_id,name:item.author_name,avatar:item.author_avatar})">
                 </div>

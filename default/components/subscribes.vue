@@ -3,7 +3,7 @@
         <div v-for="item in data" title="Открыть ленту"
             @click="onOpen(item)">
             <span class="avatar">
-                <img v-if="item.avatar"
+                <img draggable="false" v-if="item.avatar"
                     :src="'/img/avatars/'+item.avatar">
             </span>
             <span class="name">{{ item.name }}</span>

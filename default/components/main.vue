@@ -9,12 +9,21 @@
 
         <div class="l-panel">
             <div class="tabs">
+                <a class="tab logo" href="/html">
+                    <img draggable="false" src="/img/etc/logo.png">
+                </a>
                 <div class="tab" 
                     v-for="tab in tabs"
                     :key="tab.name"
                     :class="['tab-button',{ active: current.name === tab.name }]"
                     @click="onTabClick(tab)">
-                    {{ tab.name }}</div>
+
+                    <span class="ico">
+                        <img draggable="false" :src="'/img/etc/'+tab.type+'.png'">
+                    </span>
+                    <span class="text">{{ tab.name }}</span>
+
+                </div>
             </div>
             <div class="user-tabs">
                 <div class="tab" 
@@ -22,7 +31,8 @@
                     :key="tab.name"
                     :class="['tab-button',{ active: current.name === tab.name }]"
                     @click="onTabClick(tab)">
-                    {{ tab.name }}
+                    <span class="text">{{ tab.name }}</span>
+
                     <span class="tab-close" 
                         @click.stop="onTabClose(tab)" title="Закрыть вкладку">X</span>
                 </div>
@@ -235,6 +245,11 @@ body{
     margin: 0;
     padding: 0;
 }
+.ldb .logo{
+    height: 100px;
+    justify-content: center;
+    background-color: #fff;
+}
 .ldb{
     position: relative;
     display: flex;
@@ -243,44 +258,41 @@ body{
     flex-wrap: wrap;
     align-items: flex-start;
     justify-content: center;
+    /*margin-top: 40px;*/
+    /*overflow: hidden;*/
 }
 .ldb .l-panel,
 .ldb .r-panel{
-    position: relative;
-    display: flex;
-    flex: 1 1 15%;
-    height: inherit;
-    width: 100%;
-    max-width: 15%;
-    background-color: #f8f8f8;
-}
-.ldb .tabsheet{
-    flex: 4 1 60%;
-}
-.tabs{
     position: fixed;
-    width: inherit;
-    max-width: inherit;
+    display: flex;
+    flex-flow: column;
+    height: inherit;
+    width: 15%;
+    background-color: #eee;
+}
+.ldb .l-panel{
     top: 0;
     left: 0;
-    display: flex;
-    flex-flow: column;
 }
-.user-tabs{
-    position: fixed;
-    bottom: 5%;
-    left: 0;
-    display: flex;
-    flex-flow: column;
-    width: inherit;
-    max-width: inherit;
-}
-.r-tabs{
-    position: fixed;
-    width: inherit;
-    max-width: inherit;
+.ldb .r-panel{
     top: 0;
     right: 0;
+}
+.ldb .tabsheet{
+    display: flex;
+    margin: 0 15%;
+}
+.tabs{
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+}
+.user-tabs{
+    display: flex;
+    flex-flow: column;
+    margin-top: 40px;
+}
+.r-tabs{
     display: flex;
     flex-flow: column;
 }
@@ -347,13 +359,12 @@ a.button{
     position: relative;
     display: flex;
     align-self: flex-end;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    font-size: 18px;
+    font-size: 20px;
     width: 100%;
     height: 80px;
-    color: #8600D7;
-    border: 1px solid #8600D7;
+    color: #555;
     user-select: none;
     cursor: pointer;
     z-index: 0;
@@ -361,10 +372,11 @@ a.button{
 .tab:not(:last-child){
     border-bottom: none;
 }
-.tab.active{
+.tab-button.active{
+    color: #FF4500;
     background-color: #fff;
     cursor: default;
-    z-index: 1;
+    /*z-index: 1;*/
     border-right: none;
 }
 .tab-close{
@@ -375,6 +387,21 @@ a.button{
     font-size: 12px;
     cursor: pointer;
 }
+.tab-button:not(.active):hover{
+    background-color: #fafafa;
+}
+
+
+.tab>.ico{
+    display: inline-block;
+    width: 50px;
+    user-select: none;
+    margin-left: 10px;
+}
+.tab>.text{
+    margin-left: 20px;
+}
+
 
 .fotos.ico .foto{
     width: auto;

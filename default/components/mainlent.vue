@@ -16,13 +16,13 @@
 
         <div v-if="tab.user" class="tab-title">
             <span class="user-title">
-                <img v-if="tab.user.avatar" class="avatar"
+                <img draggable="false" v-if="tab.user.avatar" class="avatar"
                     :src="'/img/avatars/'+tab.user.avatar">
                 <span class="user-name">{{ tab.user.name }}</span>
             </span>
             <span v-if="cansubscribe" class="subscribe-button"
                 @click="onSubscribe">Подписаться</span>
-            <span v-else class="subscribe-text">Подписка</span>
+            <span v-else class="subscribe-text">Вы подписаны</span>
         </div>
 
         <adder v-if="adding_mode"
@@ -290,7 +290,7 @@ module.exports={
 }
 .user-name{
     display: flex;
-    font-weight: bold;
+    /*font-weight: bold;*/
     font-size: 20px;
     color: #8600D7;
 }

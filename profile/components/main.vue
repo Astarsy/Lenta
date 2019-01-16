@@ -1,26 +1,52 @@
 <template>
     <div class="profile-js">
-        <h1>PROFILE</h1>
 
-        <div class="icon-box">
-            <img :src="image_url">
-            <fileadder
-                :editmode="true"
-                title="Сменить аватар"
-                @changed="onFotoChanged"
-                @active-changed="onFotoActiveChanged"
-                @cancel="onFotoCancel"></fileadder>
+        <div class="left">
+            <a class="logo" href="/html">
+                <img draggable="false" src="/img/etc/logo.png">
+            </a>
         </div>
 
-        <inputex
-            :value="user.name"
-            :maxlength="20"
-            @input="onInput"
-            @active-changed="onNameChanged"></inputex>
+        <div class="center">
 
-        <div class="button send"
-            :class="{ disabled : !is_ok_btn_active }"
-            @click="onOk">Готово</div>
+            <h1>Личные данные</h1>
+
+            <div class="nick">
+                <span class="label">Имя на сайте</span>
+                <inputex
+                        :value="user.name"
+                        :maxlength="20"
+                        @input="onInput"
+                        @active-changed="onNameChanged"></inputex>
+            </div>
+
+            <div class="avatar">
+                <span class="label">Аватар</span>
+                <img draggable="false" :src="image_url">
+                <fileadder
+                    :editmode="true"
+                    title="Сменить аватар"
+                    @changed="onFotoChanged"
+                    @active-changed="onFotoActiveChanged"
+                    @cancel="onFotoCancel"></fileadder>
+            </div>
+
+            <div class="buttons">
+
+                <div class="button send"
+                    :class="{ disabled : !is_ok_btn_active }"
+                    @click="onOk">Сохранить</div>
+
+                <div class="back">
+                    <a href="/html">Вернуться в Ленту</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="right">
+        </div>
 
     </div>
 </template>
@@ -94,35 +120,108 @@ module.exports = {
 </script>
 
 <style>
+    html,
+    body{
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+img{
+    user-select: none;
+}
 .profile-js{
     display: flex;
-    flex-flow: column;
-}
-.profile-js>div{
-    display: flex;
-    align-items: flex-end;
-    height: 80px;
-    border: 1px solid #ccc;
-}
-.profile-js .icon-box img{
-    display: flex;
+    align-items: flex-start;
     height: 100%;
 }
+
+.profile-js .left{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 20%;
+    min-width: 140px;
+    height: 100%;
+    background-color: #f8f8f8;
+}
+.profile-js .logo{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    background-color: #fff;
+    padding: 10px 0;
+}
+
+.profile-js .center{
+    display: flex;
+    flex-flow: column;
+    width: 60%;
+    background-color: #fff;
+    padding: 0 10px;
+}
+.profile-js .center h1{
+    text-align: center;
+    color: #888;
+}
+.profile-js .center>div:not(:last-child){
+    border-bottom: 1px solid #eee;
+}
+.profile-js .center>div{
+    display: flex;
+    align-items: center;
+    /*background-color: #eee;*/
+    padding: 20px 0;
+}
+.profile-js .label{
+    display: flex;
+    width: 15%;
+    padding-left: 10px;
+}
+.profile-js .nick .inputex{
+    display: flex;
+}
+.profile-js .nick .inputex input{
+    font-size: 18px;
+    padding: 2px 4px;
+    border: 1px solid #bbb;
+    border-radius: 10px;
+}
+.profile-js .nick .inputex .counter{
+    font-size: 12px;
+}
+.profile-js .avatar img{
+    display: flex;
+    width: 66px;
+    margin-right: 20px;
+    border: 1px solid #bbb;
+    border-radius: 12px;
+}
+.profile-js .buttons{
+    display: flex;
+    justify-content: space-around;
+}
+
+.profile-js .right{
+    display: flex;
+    width: 20%;
+    height: 100%;
+    background-color: #f8f8f8;
+}
+
 .profile-js .button{
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 24px;
-    height: 24px;
     cursor: pointer;
     border: 1px solid;
-    border-radius: 4px;
+    border-radius: 8px;
     user-select: none;
+    padding: 4px 8px;
 }
 .profile-js .button.send{
     color: #0a0;
     border-color: #0a0;
-    width: 80px;
 }
 .profile-js .ok,
 .profile-js .button.ok{
@@ -133,11 +232,21 @@ module.exports = {
     color: #aaa;
     border-color: #aaa;
 }
-.profile-js .disabled{
-    opacity: .4;
+.profile-js .button.disabled{
+    opacity: .6;
+    color: #aaa;
+    border-color: #aaa;
     cursor: default;
 }
-.icon-box>*:not(:last-child){
-    margin-right: 4px;
+.profile-js .back>a{
+    display: flex;
+    font-size: 18px;
+    font-weight: bold;
+    color: #FF4500;
+    border: 2px solid #FF4500;
+    border-radius: 120px;
+    padding: 8px 16px;
+    cursor: pointer;
+    text-decoration: none;
 }
 </style>
