@@ -1,9 +1,9 @@
 <template>
-    <div class="inputex">
-        <input v-model="text"
-            @input="onInput">
+    <div class="textareaex">
+        <textarea v-model="text"
+                  @input="onInput"></textarea>
         <div class="counter ok" :class="{ danger:danger }">{{ counter }}</div>
-        <span :class="{ disabled : !is_btn_active }"
+        <span :class="{ disabled : this.text===this.old_text }"
             class="button cancel"
             @click.stop="onCancelClick"
             title="Отменить">✘</span>
@@ -23,10 +23,6 @@ module.exports = {
     },
     props:{
         value: String,
-        minlength:{
-            type: Number,
-            default: 3
-        },
         maxlength: Number
     },
     methods: {
@@ -43,44 +39,38 @@ module.exports = {
         }
     },
     computed:{
-        is_btn_active: function(){
-            return this.old_text!==this.text
-        },
-        changed: function(){
-            return this.old_text!==this.text
-        },
         counter: function (){
             if(undefined===this.text)return this.maxLength
-            var r=this.maxLength-this.text.length
-            if(this.text.length<this.minlength){
+            let r=this.maxLength-this.text.length
+            if(r<0){
                 this.danger=true
-                this.msg='Имя слишком короткое'
-            }else if(r<0){
-                this.danger=true
-                this.msg='Имя слишком длинное'
+                this.msg='Текст слишком длинный'
             }else{
                 this.danger=false
                 this.msg=null
             }
             return r
         }
-    }
+    },
 }
 </script>
 <style>
-.inputex .buttons{
+.textareaex{
     display: flex;
 }
-.inputex>*:not(:last-child),
-.inputex .button:not(:last-child){
+.textareaex .buttons{
+    display: flex;
+}
+.textareaex>*:not(:last-child),
+.textareaex .button:not(:last-child){
     margin-right: 8px;
 }
-.inputex .counter{
+.textareaex .counter{
     display: flex;
     align-self: flex-start;
     cursor: default;
 }
-.inputex .danger{
+.textareaex .danger{
     color: red;
 }
 </style>

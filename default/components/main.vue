@@ -114,7 +114,7 @@ module.exports = {
                     this.message={
                         style: 'danger',
                         type: 'info',
-                        text: "Не удалось прдписаться..."
+                        text: "Не удалось подписаться..."
                     }
                 })
         },

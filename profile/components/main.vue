@@ -9,15 +9,20 @@
 
         <div class="center">
 
+            <flashmessage
+                    v-if="message"
+                    :message="message"
+                    @close="onMsgClosed"></flashmessage>
+
             <h1>Личные данные</h1>
 
             <div class="nick">
                 <span class="label">Имя на сайте</span>
                 <inputex
+                        ref="nick"
                         :value="user.name"
                         :maxlength="20"
-                        @input="onInput"
-                        @active-changed="onNameChanged"></inputex>
+                        @input="onNameInput"></inputex>
             </div>
 
             <div class="avatar">
@@ -29,6 +34,15 @@
                     @changed="onFotoChanged"
                     @active-changed="onFotoActiveChanged"
                     @cancel="onFotoCancel"></fileadder>
+            </div>
+
+            <div class="about">
+                <span class="label">О себе</span>
+                <textareaex
+                        ref="about"
+                        :value="user.about"
+                        :maxlength="200"
+                        @input="onAboutInput"></textareaex>
             </div>
 
             <div class="buttons">
@@ -54,13 +68,17 @@
 <script>
 let fileadder=require('./file_adder.vue')
 let inputex=require('./inputex.vue')
+let textareaex=require('./textareaex.vue')
+let flashmessage=require('./flashmessage.vue')
 module.exports = {
     data: function(){
         return {
             user: document.mag_start_data.user,
             image_url: null,
             is_name_changed: false,
+            is_about_changed: false,
             is_avatar_changed: false,
+            message: null,
             file: null
         }
     },
@@ -72,11 +90,13 @@ module.exports = {
         onFotoActiveChanged(v){
             this.is_avatar_changed=v
         },
-        onNameChanged(v){
-            this.is_name_changed=v
+        onNameInput(n,o){
+            this.$set(this.user,'name',n)
+            this.is_name_changed=n!==o
         },
-        onInput(text){
-            this.$set(this.user,'name',text)
+        onAboutInput(n,o){
+            this.$set(this.user,'about',n)
+            this.is_about_changed=n!==o
         },
         onFotoCancel(){
             this.image_url=this.getAvatarUrl(this.user.avatar)
@@ -88,12 +108,31 @@ module.exports = {
         request(){
             let data=new FormData()
             if(this.is_name_changed)data.append('name',this.user.name)
+            if(this.is_about_changed)data.append('about',this.user.about)
             if(this.is_avatar_changed)data.append('userFiles[]',this.file)
+
             this.$http.post(window.location.origin+"/api/saveprofile",data).then(function(responce){
  console.dir(responce.body)
+
+                    this.message={
+                        style: 'ok',
+                        type: 'info',
+                        text: "Готово!"
+                    }
+                    this.is_name_changed=false
+                    this.$refs.nick.reset()
+                    this.is_about_changed=false
+                    this.$refs.about.reset()
+                    this.is_avatar_changed=false
                 },
                 function(responce){
  console.dir(responce)
+
+                    this.message={
+                        style: 'danger',
+                        type: 'info',
+                        text: "Не удалось сохранить..."
+                    }
                 })
         },
         getAvatarUrl(n){
@@ -102,19 +141,24 @@ module.exports = {
         getAvatarName(n){
             if(n)return n
             else return 'anonim.png'
-        }
+        },
+        onMsgClosed(){
+            this.message=null
+        },
     },
     created(){
         this.image_url=this.getAvatarUrl(this.user.avatar)
     },
     computed:{
         is_ok_btn_active: function(){
-            return this.is_name_changed || this.is_avatar_changed
+            return (this.is_name_changed || this.is_avatar_changed || this.is_about_changed)
         }
     },
     components: {
         fileadder,
-        inputex
+        inputex,
+        textareaex,
+        flashmessage
     }
 }
 </script>
@@ -178,16 +222,21 @@ img{
     width: 15%;
     padding-left: 10px;
 }
-.profile-js .nick .inputex{
+.profile-js .nick .inputex,
+.profile-js .about .textareaex{
     display: flex;
+    align-items: center;
 }
-.profile-js .nick .inputex input{
+.profile-js .nick .inputex input,
+.profile-js .about textarea{
     font-size: 18px;
     padding: 2px 4px;
     border: 1px solid #bbb;
     border-radius: 10px;
+    outline: none;
 }
-.profile-js .nick .inputex .counter{
+.profile-js .nick .inputex .counter,
+.profile-js .about .textareaex .counter{
     font-size: 12px;
 }
 .profile-js .avatar img{

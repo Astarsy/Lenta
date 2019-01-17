@@ -1,6 +1,6 @@
 <template>
     <div v-if="message"
-        class="flashmessage"
+        id="_flm_"
          :class="message.style">
         <div class="sys-buttons">
             <div class="button-close" @click="onClose" title="Скрыть">✘</div>
@@ -38,44 +38,46 @@ module.exports = {
 }
 </script>
 <style>
-.flashmessage{
+#_flm_{
     position: absolute;
     display: flex;
     align-self: center;
     flex-flow: column;
     justify-content: center;
     font-size: 22px;
-    background-color: #f8f8f8;    
+    /*background-color: rgba(250,250,250,0.8);*/
+    background-color: #f8f8f8;
     border: 2px solid;
     border-radius: 8px;
-    padding: 12px;
+    padding: 2% 5%;
+    margin-top: 6%;
     z-index: 10;
 }
-.flashmessage.danger,
-.flashmessage.danger .ok{
+#_flm_.danger,
+#_flm_.danger .ok{
     color: #f55;
     border-color: #f88;
 }
-.flashmessage.info{
+#_flm_.info{
     color: #55f;
     border-color: #88f;
 }
-.flashmessage.ok{
+#_flm_.ok{
     color: #00AA17;
     border-color: #00AA17;
 }
-.flashmessage .sys-buttons{
+#_flm_ .sys-buttons{
     text-align: right;
 }
-.flashmessage .buttons{
+#_flm_ .buttons{
     text-align: center;
 }
-.flashmessage .button{
+#_flm_ .button{
     width: auto;
     height: auto;
     padding: 2px 6px;
 }
-.flashmessage .button-close{
+#_flm_ .button-close{
     position: absolute;
     top: 4px;
     right: 4px;
@@ -86,7 +88,8 @@ module.exports = {
     height: 20px;
     cursor: pointer;
 }
-.flashmessage .msg{
+#_flm_ .msg{
+    font-size: 24px;
     margin: 10px 0 20px 0;
     cursor: default;
 }
