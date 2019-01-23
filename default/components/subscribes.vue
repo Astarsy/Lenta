@@ -1,6 +1,7 @@
 <template>
     <div class="subscribes">
-        <h3>Подписки</h3>
+        <h3 class="sbs-status" v-if="data.length">Вы подписаны:</h3>
+        <p class="sbs-status" v-else>Вы ни на кого не подписаны</p>
         <div v-for="item in data" :title="'Открыть ленту '+item.name"
             @click="onOpen(item)">
             <span class="avatar">
@@ -46,6 +47,7 @@ module.exports = {
     flex-flow: column;
     overflow: hidden;
 }
+.sbs-status,
 .subscribes>h3{
     text-align: center;
     font-weight: 600;

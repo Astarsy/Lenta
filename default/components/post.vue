@@ -9,7 +9,7 @@
             @ok="onConfirmPostDel"
             @close="onFlashMessageClosed"></flashmessage>
 
-        <div v-if="!hidetitle" class="post-title"
+        <div v-if="!(tabuser || canedit)" class="post-title"
             :class="{ 'status-new' : data.status=='new' }">
             <img draggable="false" class="avatar"
                  :src="'/img/avatars/'+avatar"
@@ -83,15 +83,12 @@ module.exports = {
             type: Object,
             default: null
         },
-        hidetitle:{
+        tabuser:{
             type: Object,
             default: null
         }
     },
     methods: {
-        onCommentsCountClick(){
-            console.log('show comments for post '+this.data.id)
-        },
         onUserClick(uid){
             this.$emit('user-click',uid)
         },

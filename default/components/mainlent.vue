@@ -13,7 +13,6 @@
             <span class="button ok">Создать публикацию</span>
             <span class="user-name">{{ user.name }}</span>
         </div>
-
         <div v-if="tab.user" class="tab-title">
             <span class="user-title">
                 <img draggable="false" v-if="tab.user.avatar" class="avatar"
@@ -35,13 +34,13 @@
             :curuser="user"
             :data="post"
             :canedit="canedit"
-            :hidetitle="tab.user"
+            :tabuser="tab.user"
             @edit="onPostEdit(post)"
             @user-click="onPostUserClick"></post>
 
-        <div class="button"
-            @click="onMore"
-            title="ещё">⟲</div>
+        <!--<div class="button"-->
+            <!--@click="onMore"-->
+            <!--title="ещё">⟲</div>-->
 
     </div>
 </template>
@@ -205,11 +204,11 @@ module.exports={
             this.$http.get(window.location.origin+"/api/"+this.tab.type,options).then(function(responce){                
 
 // console.log('last update '+this.lastupdate)
- console.dir(responce.body.posts)
+ //console.dir(responce.body.posts)
 
                     if(responce.body==='Ok'){
                         this.wait_scroll_update_time=Date.now()
-                        console.log('Ok')
+                        //console.log('Ok')
                         return
                     }
                     this.wait_scroll_update_time=0
@@ -302,7 +301,7 @@ module.exports={
 }
 .my-pannel{
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     margin: 0 12px;
 }

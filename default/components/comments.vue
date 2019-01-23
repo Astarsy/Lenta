@@ -27,13 +27,13 @@
         </div>
 
         <div v-for="item in items" class="comment">
-            <div class="l-block">
-                <div class="ava-box">
-                    <img draggable="false" v-if="item.author_avatar"
-                        :src="'/img/avatars/'+item.author_avatar"
-                        @click="onAuthorClick({id:item.author_id,name:item.author_name,avatar:item.author_avatar})">
-                </div>
-            </div>
+            <!--<div class="l-block">-->
+                <!--<div class="ava-box">-->
+                    <!--<img draggable="false" v-if="item.author_avatar"-->
+                        <!--:src="'/img/avatars/'+item.author_avatar"-->
+                        <!--@click="onAuthorClick({id:item.author_id,name:item.author_name,avatar:item.author_avatar})">-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="r-block">
                 <div>
                     <span class="author">{{ item.author_name }}</span>
@@ -134,7 +134,7 @@ module.exports = {
                 }
             }
             this.$http.get(window.location.origin+"/api/getcomments",options).then(function(responce){
-console.dir(responce.body)
+//console.dir(responce.body)
                     if(responce.body.items.length>0){
                         this.updateItems(responce.body.items)
                         this.lastupdate=responce.body.lastupdate
@@ -218,7 +218,7 @@ div[contenteditable='true']{
     margin-right: 10px;
 }
 .comments .author{
-    font-weight: 650;
+    font-weight: 600;
 }
 .comments .text{
     margin-left: 12px;
@@ -228,6 +228,15 @@ div[contenteditable='true']{
     cursor: pointer;
 }
 
+.comments .r-block{
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+}
+.comments .r-block>div{
+    display: flex;
+    justify-content: space-between;
+}
 .comments .l-block{
     display: flex;
 }
