@@ -34,7 +34,7 @@
                     <span class="text">{{ tab.name }}</span>
 
                     <span class="tab-close" 
-                        @click.stop="onTabClose(tab)" title="Закрыть вкладку">X</span>
+                        @click.stop="onTabClose(tab)" title="Закрыть вкладку">❌</span>
                 </div>
             </div>
         </div>
@@ -48,15 +48,17 @@
             @open-user-lent="onOpenUserLent"
             @subscribe="onSubscribe"></mainlent>
         </keep-alive>
+
         <div class="r-panel">
             <div class="r-tabs">
 
                 <userbar
                     :user="user"></userbar>
 
-                <div class="button"
-                    @click="onTestClick"
-                    >Update</div>
+                <!--<div class="button"-->
+                    <!--@click="onTestClick"-->
+                    <!--&gt;Update</div>-->
+
                 <keep-alive>
                     <subscribes v-if="subscribes"
                         :data="subscribes"
@@ -65,6 +67,7 @@
                 </keep-alive>
             </div>
         </div>
+
     </div>
 </template>
 
@@ -359,6 +362,7 @@ a.button{
 }
 
 .tab{
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -366,7 +370,7 @@ a.button{
     color: #555;
     padding: 5px 10%;
     user-select: none;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 .tab>*{
     display: flex;
@@ -374,7 +378,12 @@ a.button{
 .tab>*:not(:last-child){
     margin-right: 5px;
 }
-.tab-button.active{
+.tab-button,
+.tab-button>*{
+    cursor: pointer;
+}
+.tab-button.active,
+.tab-button.active>*{
     color: #FF4500;
     background-color: #fff;
     cursor: default;
@@ -382,6 +391,14 @@ a.button{
 }
 .tab-button:not(.active):hover{
     background-color: #f8f8f8;
+}
+.tab-button .tab-close{
+    position: absolute;
+    top: 0;
+    right: 4px;
+    color: #bbb;
+    font-size: 14px;
+    cursor: pointer;
 }
 
 .fotos.ico .foto{

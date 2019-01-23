@@ -1,12 +1,13 @@
 <template>
     <div class="subscribes">
-        <div v-for="item in data" title="Открыть ленту"
+        <h3>Подписки</h3>
+        <div v-for="item in data" :title="'Открыть ленту '+item.name"
             @click="onOpen(item)">
             <span class="avatar">
                 <img draggable="false" v-if="item.avatar"
                     :src="'/img/avatars/'+item.avatar">
             </span>
-            <span class="name">{{ item.name }}</span>
+            <span class="user-name">{{ item.name }}</span>
             <span class="count" title="Всего публикаций">{{ item.post_count }}</span>
             <div class="unscribe"
                 @click.stop="onUnscribe(item)">
@@ -43,28 +44,24 @@ module.exports = {
 .subscribes{
     display: flex;
     flex-flow: column;
-    margin-top: 12px;
-    border: 1px solid #8600D7;
     overflow: hidden;
+}
+.subscribes>h3{
+    text-align: center;
+    font-weight: 600;
+    margin: 4px 0;
+    color: #555;
 }
 .subscribes>div{
     position: relative;
     display: flex;
     flex-flow: row;
     align-items: center;
-    padding: 0;
+    padding: 0 0 0 6%;
     cursor: pointer;
 }
-.subscribes>div:not(:last-child){
-    border-bottom: 1px solid #8600D7;
-}
-.subscribes>div>span:not(:last-child){
-    margin-right: 12px;
-}
-.subscribes .name{
-    font-size: 18px;
-    font-weight: bold;
-    color: #8600D7;
+.subscribes>div:hover{
+    background-color: #f8f8f8;
 }
 .subscribes .count{
     color: #888;

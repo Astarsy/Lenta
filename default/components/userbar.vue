@@ -5,12 +5,13 @@
             Войти</a>
     </div>
 
-    <div v-else class="userbar">
+    <div v-else class="userbar"
+         @click="is_open=!is_open">
         <div class="icon-box">
-            <div class="icon"
-                    @click="is_open=!is_open">
+            <div class="icon">
                 <img draggable="false" :src="icon">
             </div>
+            <div class="user-name">{{ user.name }}</div>
         </div>
         <div v-if="is_open">
             <a class="button enter" href="/html/profile">Профиль</a>
@@ -50,6 +51,9 @@ module.exports = {
     justify-content: center;
     align-items: center;
     margin-bottom: 12px;
+    padding-bottom: 4px;
+    background-color: #fff;
+    cursor: pointer;
 }
 .userbar>div{
     display: flex;
@@ -61,7 +65,8 @@ module.exports = {
     margin-bottom: 4px;
 }
 .userbar .icon-box{
-    align-items: flex-end;
+    display: flex;
+    align-items: center;
 }
 .userbar .icon{
     display: flex;
@@ -69,8 +74,7 @@ module.exports = {
     align-items: center;
     width: 60px;
     padding: 5px;
-    background-color: cadetblue;
-    cursor: pointer;
+    /*background-color: cadetblue;*/
 }
 .userbar img{
     max-width: 100%;
