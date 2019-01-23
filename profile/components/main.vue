@@ -112,7 +112,7 @@ module.exports = {
             if(this.is_avatar_changed)data.append('userFiles[]',this.file)
 
             this.$http.post(window.location.origin+"/api/saveprofile",data).then(function(responce){
- console.dir(responce.body)
+// console.dir(responce.body)
 
                     this.message={
                         style: 'ok',
@@ -121,12 +121,13 @@ module.exports = {
                     }
                     this.is_name_changed=false
                     this.$refs.nick.reset()
+
                     this.is_about_changed=false
                     this.$refs.about.reset()
                     this.is_avatar_changed=false
                 },
                 function(responce){
- console.dir(responce)
+// console.dir(responce)
 
                     this.message={
                         style: 'danger',

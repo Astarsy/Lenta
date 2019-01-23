@@ -400,7 +400,7 @@ div[contenteditable='true']{
     cursor: pointer;
 }
 .item{
-    padding: 4px 0;
+    /*padding: 4px 0;*/
     border-radius: 10px;
 }
 .delete-post:hover,

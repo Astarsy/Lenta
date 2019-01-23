@@ -246,9 +246,12 @@ body{
     padding: 0;
 }
 .ldb .logo{
-    height: 100px;
-    justify-content: center;
+    display: flex;
     background-color: #fff;
+}
+.ldb .logo img{
+    width: 100%;
+    max-width: 142px;
 }
 .ldb{
     position: relative;
@@ -258,8 +261,6 @@ body{
     flex-wrap: wrap;
     align-items: flex-start;
     justify-content: center;
-    /*margin-top: 40px;*/
-    /*overflow: hidden;*/
 }
 .ldb .l-panel,
 .ldb .r-panel{
@@ -281,6 +282,8 @@ body{
 .ldb .tabsheet{
     display: flex;
     margin: 0 15%;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
 }
 .tabs{
     display: flex;
@@ -356,57 +359,42 @@ a.button{
 }
 
 .tab{
-    position: relative;
     display: flex;
-    align-self: flex-end;
-    justify-content: flex-start;
+    flex-wrap: wrap;
     align-items: center;
     font-size: 20px;
-    width: 100%;
-    height: 80px;
     color: #555;
+    padding: 5px 10%;
     user-select: none;
     cursor: pointer;
-    z-index: 0;
 }
-.tab:not(:last-child){
-    border-bottom: none;
+.tab>*{
+    display: flex;
+}
+.tab>*:not(:last-child){
+    margin-right: 5px;
 }
 .tab-button.active{
     color: #FF4500;
     background-color: #fff;
     cursor: default;
-    /*z-index: 1;*/
     border-right: none;
 }
-.tab-close{
-    position: absolute;
-    top: 2px;
-    right: 8px;
-    display: flex;
-    font-size: 12px;
-    cursor: pointer;
-}
 .tab-button:not(.active):hover{
-    background-color: #fafafa;
+    background-color: #f8f8f8;
 }
-
-
-.tab>.ico{
-    display: inline-block;
-    width: 50px;
-    user-select: none;
-    margin-left: 10px;
-}
-.tab>.text{
-    margin-left: 20px;
-}
-
 
 .fotos.ico .foto{
-    width: auto;
+    display: flex;
+    width: 160px;
     height: auto;
 }
+.fotos.ico .foto>img{
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+}
+
 .fotos.mini .foto{
     width: auto;
     height: auto;

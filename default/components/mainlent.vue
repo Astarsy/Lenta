@@ -71,11 +71,6 @@ module.exports={
         }
     },
     methods: {
-        onMore(){
-            this.curpage++
-            this.lastupdate=0
-            this.request()
-        },
         onSubscribe(){
             this.$emit('subscribe',this.posts[0].user_id)
         },
@@ -208,7 +203,7 @@ module.exports={
             this.$http.get(window.location.origin+"/api/"+this.tab.type,options).then(function(responce){                
 
 // console.log('last update '+this.lastupdate)
-// console.dir(responce.body)
+ console.dir(responce.body.posts)
 
                     if(responce.body=='Ok')return
                     if (!responce.body.posts){
@@ -236,13 +231,26 @@ module.exports={
                     }
                 })
         },
+        onMore(){
+            this.curpage++
+            this.lastupdate=0
+
+//            console.log('requesting page '+this.curpage)
+
+            this.request()
+        },
+        onScrollBit(){
+            console.log('scroll bit')
+        },
         onWindowScroll(){
             let scrollHeight = Math.max(
                 document.body.scrollHeight, document.documentElement.scrollHeight,
                 document.body.offsetHeight, document.documentElement.offsetHeight,
                 document.body.clientHeight, document.documentElement.clientHeight
             )
-            if(window.pageYOffset+window.innerHeight-scrollHeight<=-20)this.onMore()
+            let d=window.pageYOffset+window.innerHeight-scrollHeight
+            if(d>-20)console.log(d)
+//            if(window.pageYOffset+window.innerHeight-scrollHeight<=-20)this.onScrollBit()
         }
     },
     created(){
@@ -276,10 +284,7 @@ module.exports={
 .tabsheet{
     display: flex;
     flex-flow: column;
-    /*padding: 8px 0 0 0;*/
-    /*border-top: 2px solid #ddd;*/
     margin: 0 2px;
-    /*width: 80%;*/
     overflow: hidden;
 }
 .my-pannel{
@@ -290,7 +295,6 @@ module.exports={
 }
 .user-name{
     display: flex;
-    /*font-weight: bold;*/
     font-size: 20px;
     color: #8600D7;
 }

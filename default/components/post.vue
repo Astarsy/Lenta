@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <div>
+        <div class="comment-box">
             <span class="comment-head"
                 @click.stop="is_comments_open=!is_comments_open">Комментариев</span>
             <span v-if="data.comments_count>0">{{ data.comments_count }}</span>
@@ -147,9 +147,6 @@ module.exports = {
     flex-flow: column;
     border-bottom: 1px solid #ddd;
     padding-bottom: 4px;
-    /*border-right: none;*/
-    /*border-left: none;*/
-    /*border-radius: 12px;*/
 }
 .post .edit{
     position: absolute;
@@ -218,35 +215,37 @@ module.exports = {
     margin-right: 0;
 }
 .foto img{
+    display: flex;
     max-width: 100%;
     height: auto;
     border-radius: 12px;
 }
-.item-box{
-    display: block;
-    text-align: center;
-    margin-bottom: 12px;
+.item_box{
+    /*display: block;*/
+    /*text-align: center;*/
+    margin-bottom: 4px;
+}
+.item{
+    margin: 0 8px;
 }
 .stub{
     clear: both;
 }
 .left .fotos{
     float: left;
-    margin-right: 10px;
+    margin-right: 8px;
 }
 .left .text{
-    margin-right: 4px;
+    /*margin-right: 4px;*/
 }
 .right .fotos{
     float: right;
-    margin-left: 10px;
-}
-.text{
     margin-left: 8px;
 }
 .comment-box{
     color: #888;
     font-style: italic;
+    margin-left: 4px;
     user-select: none;
 }
 .comment-head{
