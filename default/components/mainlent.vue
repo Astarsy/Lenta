@@ -59,7 +59,8 @@ module.exports={
             user: document.mag_start_data.user,
             adding_mode: false,
             edited_post: undefined,
-            message: null
+            message: null,
+            wait_scroll_update_time: 0
         }
     },
     props:{
@@ -196,7 +197,8 @@ module.exports={
             var options= {
                 params: {
                     lastupdate: this.lastupdate,
-                    curpage: this.curpage
+                    curpage: this.curpage,
+                    postcount: this.posts.length
                 }
             }
             if(this.tab.params)options.params=Object.assign(options.params,this.tab.params)
@@ -205,7 +207,12 @@ module.exports={
 // console.log('last update '+this.lastupdate)
  console.dir(responce.body.posts)
 
-                    if(responce.body=='Ok')return
+                    if(responce.body==='Ok'){
+                        this.wait_scroll_update_time=Date.now()
+                        console.log('Ok')
+                        return
+                    }
+                    this.wait_scroll_update_time=0
                     if (!responce.body.posts){
                         this.posts.splice(0)
                         return
@@ -240,7 +247,11 @@ module.exports={
             this.request()
         },
         onScrollBit(){
-            console.log('scroll bit')
+            let dt=(Date.now()-this.wait_scroll_update_time)/1000
+            if(dt<3)return
+            this.wait_scroll_update_time=Date.now()
+//            console.log(dt)
+            this.onMore()
         },
         onWindowScroll(){
             let scrollHeight = Math.max(
@@ -249,8 +260,10 @@ module.exports={
                 document.body.clientHeight, document.documentElement.clientHeight
             )
             let d=window.pageYOffset+window.innerHeight-scrollHeight
-            if(d>-20)console.log(d)
-//            if(window.pageYOffset+window.innerHeight-scrollHeight<=-20)this.onScrollBit()
+            if(d>-20){
+//                console.log(d)
+                this.onScrollBit()
+            }
         }
     },
     created(){

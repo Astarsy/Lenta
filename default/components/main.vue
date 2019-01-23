@@ -207,9 +207,9 @@ module.exports = {
             if(this.user)document.cookie='cur_url='+tab.type+';path=/;'
             this.current=tab
         },
-        onTestClick:function (e){
-            this.$refs.curcomp.request()
-        },
+//        onTestClick:function (e){
+//            this.$refs.curcomp.request()
+//        },
         tick(){
             // if(this.$refs.curcomp)this.$refs.curcomp.request()
             this.refreshTimerId=setTimeout(this.tick,this.timeout)
@@ -251,6 +251,7 @@ body{
 .ldb .logo{
     display: flex;
     background-color: #fff;
+    border-bottom: 1px solid #ddd;
 }
 .ldb .logo img{
     width: 100%;

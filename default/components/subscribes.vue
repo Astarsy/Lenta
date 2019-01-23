@@ -49,7 +49,7 @@ module.exports = {
 .subscribes>h3{
     text-align: center;
     font-weight: 600;
-    margin: 4px 0;
+    margin: 4px 0 0 0;
     color: #555;
 }
 .subscribes>div{
@@ -57,7 +57,7 @@ module.exports = {
     display: flex;
     flex-flow: row;
     align-items: center;
-    padding: 0 0 0 6%;
+    padding: 2px 0 2px 6%;
     cursor: pointer;
 }
 .subscribes>div:hover{
@@ -103,5 +103,6 @@ module.exports = {
 }
 .subscribes .unscribe:hover .unscribe-text{
     right: 0;
+    color: #FF4500;
 }
 </style>
