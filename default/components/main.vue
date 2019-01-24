@@ -283,12 +283,17 @@ body{
     top: 0;
     right: 0;
 }
+
 .ldb .tabsheet{
-    display: flex;
+    display: inline-flex;
+    width: 100%;
+    flex-flow: column;
+    overflow: hidden;
     margin: 0 15%;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
 }
+
 .tabs{
     display: flex;
     flex-flow: column;

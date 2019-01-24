@@ -9,7 +9,7 @@
             @ok="onConfirmPostDel"
             @close="onFlashMessageClosed"></flashmessage>
 
-        <div v-if="!(tabuser || canedit)" class="post-title"
+        <div v-if="!hide_title" class="post-title"
             :class="{ 'status-new' : data.status=='new' }">
             <img draggable="false" class="avatar"
                  :src="'/img/avatars/'+avatar"
@@ -19,7 +19,7 @@
                     @click="onUserClick({id:data.user_id,name:data.user_name,avatar:data.user_avatar})">{{ data.user_name }}</span>
                 <span v-if="data.status=='new'">Новая публикация</span>
                 <span>{{ data.updated_at | date }}</span>
-                <span v-if="data.access" class="access" title="Приватная публикация">!</span>
+                <span v-if="data.access" class="access" title="Приватная публикация">Приватная</span>
             </span>
         </div>
 
@@ -108,6 +108,9 @@ module.exports = {
         }
     },
     computed:{
+        hide_title(){
+            return this.tabuser || this.canedit
+        },
         avatar: function(){
             if(this.data.user_avatar)return this.data.user_avatar
             else return 'anonim.png'
@@ -189,13 +192,13 @@ module.exports = {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 24px;
-    height: 24px;
+    /*width: 24px;*/
+    /*height: 24px;*/
     color: #d77;
-    font-weight: bold;
+    /*font-weight: bold;*/
     margin-left: 10px;
-    border: 2px solid #d77;
-    border-radius: 100%;
+    /*border: 2px solid #d77;*/
+    /*border-radius: 100%;*/
     cursor: default;
 }
 

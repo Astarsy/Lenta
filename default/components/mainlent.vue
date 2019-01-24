@@ -21,7 +21,7 @@
             </span>
             <span v-if="cansubscribe" class="subscribe-button"
                 @click="onSubscribe">Подписаться</span>
-            <span v-else class="subscribe-text">Вы подписаны</span>
+            <span v-if="is_subscribed" class="subscribe-text">Вы подписаны</span>
         </div>
 
         <adder v-if="adding_mode"
@@ -270,12 +270,20 @@ module.exports={
         this.request()
     },
     computed:{
+        is_subscribed(){
+            if(!this.subscribes)return false
+            const tab_author_id=this.tab.id
+            for(let i=0;i<this.subscribes.length;i++){
+                if(this.subscribes[i].id===tab_author_id)return true
+            }
+            return false
+        },
         cansubscribe(){
             // console.dir(this.subscribes)
             // console.dir(this.posts)
             if(!this.subscribes || !this.posts || !this.posts[0])return false
-            var auth_id=this.posts[0].user_id
-            for(var i=0;i<this.subscribes.length;i++){
+            let auth_id=this.posts[0].user_id
+            for(let i=0;i<this.subscribes.length;i++){
                 if(this.subscribes[i].id===auth_id)return false
             }
             return true
@@ -293,12 +301,6 @@ module.exports={
 </script>
 
 <style>
-.tabsheet{
-    display: flex;
-    flex-flow: column;
-    margin: 0 2px;
-    overflow: hidden;
-}
 .my-pannel{
     display: flex;
     justify-content: space-around;
@@ -314,6 +316,7 @@ module.exports={
     display: flex;
     justify-content: space-around;
     align-items: center;
+    margin: 4px 0;
 }
 .tab-title .avatar,
 .tab-title .user-name{
