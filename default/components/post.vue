@@ -150,10 +150,18 @@ module.exports = {
 }
 .post .edit{
     position: absolute;
-    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 4px;
     right: 6px;
+    width: 34px;
+    height: 34px;
+    background-color: #f5f5f5;
+    border-radius: 100px;
+    border: 1px solid #0772a1;
     color: #0772a1;
-    font-size: 20px;
+    font-size: 28px;
     font-weight: bold;
     transform: rotate(110deg);
     cursor: pointer;
@@ -161,6 +169,9 @@ module.exports = {
 }
 .post:hover .edit{
     opacity: 1;
+}
+.post .edit:hover{
+    background-color: #fff;
 }
 .post-title{
     display: flex;

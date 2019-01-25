@@ -305,7 +305,7 @@ module.exports={
     display: flex;
     justify-content: space-around;
     align-items: center;
-    margin: 0 12px;
+    margin: 4px 0 0 0;
 }
 .user-name{
     display: flex;

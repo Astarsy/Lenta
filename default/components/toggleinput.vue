@@ -1,9 +1,9 @@
 <template>
-    <div class="toggleinput" :class="state">
+    <div class="toggleinput" :class="state" title="Приватную публикацию увидят только друзья">
         <span class="toggle" @click="onClick">
             <span class="stick"></span>
         </span>        
-        <span class="label" title="Приватную публикацию увидит только приватная группа">Приватная</span>
+        <span class="label">Приватная</span>
 
     </div>
 </template>

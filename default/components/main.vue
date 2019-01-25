@@ -62,8 +62,15 @@
                 <keep-alive>
                     <subscribes v-if="subscribes"
                         :data="subscribes"
-                        @open="onSubscribeOpen"
+                        @open="onUserTabOpen"
                         @unscribe="onUnscribe"></subscribes>
+                </keep-alive>
+
+                <keep-alive>
+                    <friends v-if="friends"
+                        :data="friends"
+                        @open="onUserTabOpen"
+                        @unscribe="onUnfriend"></friends>
                 </keep-alive>
             </div>
         </div>
@@ -72,10 +79,11 @@
 </template>
 
 <script>
-var mainlent=require('./mainlent.vue')
-var subscribes=require('./subscribes.vue')
-var flashmessage=require('./flashmessage.vue')
-var userbar=require('./userbar.vue')
+let mainlent=require('./mainlent.vue')
+let subscribes=require('./subscribes.vue')
+let friends=require('./friends.vue')
+let flashmessage=require('./flashmessage.vue')
+let userbar=require('./userbar.vue')
 
 module.exports = {
     data: function(){
@@ -87,6 +95,7 @@ module.exports = {
             current: null,
             user: null,
             subscribes: null,
+            friends: null,
             refreshTimerId: null,
             curcomp: null
         }
@@ -124,35 +133,39 @@ module.exports = {
         onUnscribe(item){
             // Нажата кнопка Отписаться - отаравить запрос на отписку,
             // оптимистик: удалить Вкладку п-ля, Subscribes
-
-            var data=new FormData()
+            this.remove(this.subscribes,item,'unscribe')
+        },
+        onUnfriend(item){
+            // Нажата кнопка Не Дружить - отаравить запрос,
+            // оптимистик: удалить Вкладку п-ля, Subscribes
+            this.remove(this.friends,item,'unfriend')
+        },
+        remove(items,item,method){
+            // послать запрос на удаление и обновить данные
+            let data=new FormData()
             data.append('id',item.id);
-
-            this.$http.post(window.location.origin+"/api/unscribe",data).then(function(responce){
+            this.$http.post(window.location.origin+"/api/"+method,data).then(function(responce){
 // console.dir(responce.body)
                     this.message={
                         style: 'ok',
                         type: 'info',
-                        text: "Вы успешно отписаны от "+item.name
+                        text: "Готово!"
                     }
-
-                    var s=this.getSubscribeById(item.id)
-                    if(s)this.subscribes.splice(this.subscribes.indexOf(s),1)
-                    var tab=this.getUserTabById(item.id)
+                    let s=this.getItemById(items,item.id)
+                    if(s)items.splice(items.indexOf(s),1)
+                    let tab=this.getItemById(this.user_tabs,item.id)
                     this.onTabClose(tab)
-
                 },
                 function(responce){
 // console.dir(responce.body)
                     this.message={
                         style: 'danger',
                         type: 'info',
-                        text: "Не удалось отписаться..."
+                        text: "Что-то не получилось..."
                     }
                 })
-
         },
-        onSubscribeOpen(item){
+        onUserTabOpen(item){
             // console.dir(item)
             this.onOpenUserLent({
                 id:item.id,
@@ -169,7 +182,7 @@ module.exports = {
         },
         onOpenUserLent(user){
             // Создать вкладку пользователя
-            var new_tab={
+            let new_tab={
                 id:user.id,
                 name:user.name,
                 type:'user',
@@ -177,15 +190,15 @@ module.exports = {
                 user: user
             }
             if(null===this.user_tabs)this.user_tabs=[new_tab]
-            else if(null===this.getUserTabById(new_tab.id)){
+            else if(null===this.getItemById(this.user_tabs,new_tab.id)){
                 this.user_tabs.push(new_tab)
                 if(this.user_tabs.length>2)this.user_tabs.shift();
             }
             this.current=new_tab
         },
-        getSubscribeById(uid){
-            for(var i=0;i<this.subscribes.length;i++){
-                if(this.subscribes[i].id===uid)return this.subscribes[i]
+        getItemById(arr,id){
+            for(let i=0;i<arr.length;i++){
+                if(arr[i].id===id)return arr[i]
             }
             return null
         },
@@ -219,15 +232,16 @@ module.exports = {
         }
     },
     created(){
-        var d=this.getStartData()
+        let d=this.getStartData()
         if(d.user)this.user=d.user
         if(d.subscribes)this.subscribes=d.subscribes
+        if(d.friends)this.friends=d.friends
         this.tabs=d.tabs
         this.timeout=d.timeout
-        var cu=this.$root.getCoockie('cur_url')
+        let cu=this.$root.getCoockie('cur_url')
         this.current=this.tabs[0]
         if(cu){
-            var t=this.getTabByType(cu)
+            let t=this.getTabByType(cu)
             if(null!==t)this.current=t
         }
         this.tick()
@@ -235,6 +249,7 @@ module.exports = {
     components: {
         mainlent,
         subscribes,
+        friends,
         flashmessage,
         userbar
     }
