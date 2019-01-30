@@ -4,7 +4,7 @@
         <flashmessage
             v-if="message"
             :parent="this"
-            :message="message"
+            :message="flash_message"
             @close="onMsgClosed"></flashmessage>
 
         <div class="l-panel">
@@ -26,6 +26,7 @@
                 </div>
             </div>
             <div class="user-tabs">
+
                 <div class="tab" 
                     v-for="tab in user_tabs"
                     :key="tab.name"
@@ -38,15 +39,15 @@
                 </div>
             </div>
         </div>
+
         <keep-alive>
-        <mainlent
+        <component v-bind:is="current.comp"
             :key="current.name"
             ref="curcomp"
             :tab="current"
-            :canadd="current.canadd"
             :subscribes="subscribes"
             @open-user-lent="onOpenUserLent"
-            @subscribe="onSubscribe"></mainlent>
+            @subscribe="onSubscribe"></component>
         </keep-alive>
 
         <div class="r-panel">
@@ -80,6 +81,7 @@
 
 <script>
 let mainlent=require('./mainlent.vue')
+let messageslent=require('./messageslent.vue')
 let subscribes=require('./subscribes.vue')
 let friends=require('./friends.vue')
 let flashmessage=require('./flashmessage.vue')
@@ -90,22 +92,21 @@ module.exports = {
         return {
             tabs: null,
             user_tabs: null,
-            message: null,
+            flash_message: null,
             timeout: 60000,
             current: null,
             user: null,
             subscribes: null,
             friends: null,
             refreshTimerId: null,
-            curcomp: null
+            curcomp: 'mainlent',
+            adding_mode: false,
+            message: null
         }
     },
     props: {
     },
     methods: {
-        onMsgClosed(){
-            this.message=null
-        },
         onSubscribe(uid){
             // Нажата кнопка Подписаться - отправить запрос на Подписку,
             // оптимистик: добавить полученные в ответе данные п-ля в Subscribes
@@ -114,7 +115,7 @@ module.exports = {
             this.$http.post(window.location.origin+"/api/subscribe",data).then(function(responce){
 // console.dir(responce.body)
                     var user=responce.body
-                    this.message={
+                    this.flash_message={
                         style: 'ok',
                         type: 'info',
                         text: "Вы успешно подписаны на "+user.name
@@ -123,7 +124,7 @@ module.exports = {
                 },
                 function(responce){
 // console.dir(responce.body)
-                    this.message={
+                    this.flash_message={
                         style: 'danger',
                         type: 'info',
                         text: "Не удалось подписаться..."
@@ -146,7 +147,7 @@ module.exports = {
             data.append('id',item.id);
             this.$http.post(window.location.origin+"/api/"+method,data).then(function(responce){
 // console.dir(responce.body)
-                    this.message={
+                    this.flash_message={
                         style: 'ok',
                         type: 'info',
                         text: "Готово!"
@@ -158,7 +159,7 @@ module.exports = {
                 },
                 function(responce){
 // console.dir(responce.body)
-                    this.message={
+                    this.flash_message={
                         style: 'danger',
                         type: 'info',
                         text: "Что-то не получилось..."
@@ -187,7 +188,8 @@ module.exports = {
                 name:user.name,
                 type:'user',
                 params:{uid:user.id},
-                user: user
+                user: user,
+                comp: 'mainlent'
             }
             if(null===this.user_tabs)this.user_tabs=[new_tab]
             else if(null===this.getItemById(this.user_tabs,new_tab.id)){
@@ -248,10 +250,12 @@ module.exports = {
     },
     components: {
         mainlent,
+        messageslent,
         subscribes,
         friends,
         flashmessage,
-        userbar
+        userbar,
+//        addmessage
     }
 }
 </script>
@@ -389,7 +393,7 @@ a.button{
     align-items: center;
     font-size: 20px;
     color: #555;
-    padding: 5px 10%;
+    padding: 5px 2% 5px 8%;
     user-select: none;
     /*cursor: pointer;*/
 }
@@ -436,5 +440,10 @@ a.button{
 .fotos.mini .foto{
     width: auto;
     height: auto;
+}
+
+.user-ava-name{
+    display: flex;
+    align-items: center;
 }
 </style>

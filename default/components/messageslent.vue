@@ -8,56 +8,27 @@
             @ok="onConfirmPostDel"
             @close="onFlashMessageClosed"></flashmessage>
 
-        <div v-if="tab.canadd && !adding_mode" class="my-pannel"
-            @click="onAddPostClick">
-            <span class="button ok">Создать публикацию</span>
-            <span class="user-name">{{ user.name }}</span>
-        </div>
-        <div v-if="tab.user" class="tab-title">
-            <span class="user-title">
-                <img draggable="false" v-if="tab.user.avatar" class="avatar"
-                    :src="'/img/avatars/'+tab.user.avatar">
-                <span class="user-name">{{ tab.user.name }}</span>
-            </span>
-            <span v-if="user"
-                class="button ok"
-                @click="onMessage">Написать сообщение</span>
-            <span v-if="cansubscribe" class="subscribe-button"
-                @click="onSubscribe">Подписаться</span>
-            <span v-if="is_subscribed" class="subscribe-text">Вы подписаны</span>
-        </div>
+        <addmessage v-if="edited_post"
+                    :post="edited_post"
+                    @delete="onMsgDelClick"
+                    @message-setn="onMsgSent"
+                    @adder-close="closeAdder"></addmessage>
 
-        <addmessage v-if="adding_mode=='message'"
-            :post="edited_post"
-            @message-setn="onMessageSent"
-            @adder-close="closeAdder"></addmessage>
-
-        <adder v-if="adding_mode=='post'"
-            :post="edited_post"
-            @delete="onPostDelClick"
-            @message-setn="onMessageSent"
-            @adder-close="closeAdder"></adder>
-
-        <post v-for="post in posts"
-            :curuser="user"
+        <message
+            v-for="post in posts"
+            :user="user"
             :data="post"
-            :canedit="canedit"
-            :tabuser="tab.user"
+            @answer-for-message="onMessage"
             @edit="onPostEdit(post)"
-            @user-click="onPostUserClick"></post>
-
-        <!--<div class="button"-->
-            <!--@click="onMore"-->
-            <!--title="ещё">⟲</div>-->
+            @user-click="onPostUserClick"></message>
 
     </div>
 </template>
 
 <script>
-var adder=require('./adder.vue')
-var addmessage=require('./addmessage.vue')
-var flashmessage=require('./flashmessage.vue')
-var post=require('./post.vue')
+let addmessage=require('./addmessage.vue')
+let flashmessage=require('./flashmessage.vue')
+let message=require('./message.vue')
 module.exports={
     data: function(){
         return {
@@ -65,104 +36,109 @@ module.exports={
             lastupdate: 0,
             posts: [],
             user: document.mag_start_data.user,
-            adding_mode: false,
-            edited_post: undefined,
-            message: null,
+            edited_post: null,
+            f_message: null,
             wait_scroll_update_time: 0
         }
     },
     props:{
         tab: Object,
-//        canadd: Boolean,
-        subscribes:{
-            type: Array,
-            default: null
-        }
     },
     methods: {
-        onMessage(){
-            // Кнопка Написать сообщение
-//            this.$emit('message-to',this.tab.user)
+        closeAdder(){
+            this.edited_post=null
+        },
+        onMsgDelClick(id){
+            // Запросить подтверждение удаления поста, id поста временно сохранить.
+            this.message={
+                style: 'danger',
+                type: 'confirm',
+                text: 'Удалённую публикацию будет невозможно восстановить. Удалить навсегда?'
+            }
+            this._del_pid=id
+        },
+        onMsgSent(){},
+        onMessage(for_message){
+            // Нажата кнопка Ответить
             this.edited_post={
-                to_user_id: this.tab.user.id,
+                for_message_id: for_message.id,
                 bgci:0,
                 items:[
                     {fotos_align: 'center',tag: 'text',text: '',fotos_class:'ico',access:null}
                 ]
             }
-            this.adding_mode='message'
         },
-        onSubscribe(){
-            this.$emit('subscribe',this.posts[0].user_id)
+        onPostEdit(post){
+            this.edited_post=post
         },
         onPostUserClick(user){
             this.$emit('open-user-lent',user)
         },
-        onPostEdit(post){
-            this.edited_post=post
-            this.adding_mode='post'
+        onPostUserClick(user){
+            this.$emit('open-user-lent',user)
         },
         onFlashMessageClosed(post){
-            this.message=null
+            this.f_message=null
 //            this.updatePost(post)
         },
         deletePost(pid){
-            var data=new FormData()
+            let data=new FormData()
             data.append('id',pid);
 
-            this.$http.post(window.location.origin+"/api/del",data).then(function(responce){
+            this.$http.post(window.location.origin+"/api/delmsg",data).then(function(responce){
 // console.dir(responce.body)
-                    this.message={
+                    this.f_message={
                         style: 'ok',
                         type: 'info',
-                        text: "Публикация успешно удалена."
+                        text: "Сообщение успешно удалено."
                     }
-                    this.adding_mode=false
-                    var index=this.getPostIndexById(pid)
+                    let index=this.getPostIndexById(pid)
                     this.posts.splice(index,1)
                 },
                 function(responce){
 // console.dir(responce.body)
-                    this.message={
+                    this.f_message={
                         style: 'danger',
                         type: 'info',
-                        text: "Не удалось удалить публикацию."
+                        text: "Не удалось удалить сообщение."
                     }
                 })
         },
         onConfirmPostDel(){
             // Подтвердить удаление и удалить пост
-            this.message=null
-            var pid=this._del_pid
+            this.f_message=null
+            let pid=this._del_pid
             if(pid){
                 this.deletePost(pid)
             }
         },
-        onPostDelClick(id){
+        onPostDelClick(pid){
             // Запросить подтверждение удаления поста, id поста временно сохранить.
-            this.message={
+            this.f_message={
                         style: 'danger',
                         type: 'confirm',
-                        text: 'Удалённую публикацию будет невозможно восстановить. Удалить навсегда?'
+                        text: 'Удалённое сообщение будет невозможно восстановить. Удалить навсегда?'
                     }
-            this._del_pid=id
+            this._del_pid=pid
         },
         getStyle(post){
-            var bc=document.mag_start_data.colors[post.bgci]
-            var ststr='background-color:'+bc+';'
-            if(post.status=='new')ststr+='opacity: 0.5;'
+            let bc=document.mag_start_data.colors[post.bgci]
+            let ststr='background-color:'+bc+';'
+            if(post.status==='new')ststr+='opacity: 0.5;'
             return ststr
         },
+        closeAdder(){
+            this.edited_post=null
+        },
         onMessageSent(post){
-            var text
+            let text
             if(post.id)text='Публикация успешно сохранена!'
             else text='Публикация успешно создана!'
-            this.message={
+            this.f_message={
                         style: 'ok',
                         type: 'info',
                         text: text
                     }
-            this.adding_mode=false
 
             if(post.is_new){
                 post.is_new=undefined
@@ -171,40 +147,28 @@ module.exports={
             else this.updatePost(post)
 
         },
-        closeAdder(){
-            this.adding_mode=false
-        },
-        onAddPostClick(){
-            this.edited_post={
-                    bgci:0,
-                    items:[
-                        {fotos_align: 'center',tag: 'text',text: '',fotos_class:'ico',access:null}
-                        ]
-                    }
-            this.adding_mode='post'
-        },
         updatePost(post){
-            var pi=this.getPostIndexById(post.id)
+            let pi=this.getPostIndexById(post.id)
             if(null!==pi)this.$set(this.posts,pi,post)
         },
         sortPosts(){
             // Упорядочить посты
             this.posts.sort(function(a,b){
-                var tsa=new Date(a.updated_at).getTime()
-                var tsb=new Date(b.updated_at).getTime()
+                let tsa=new Date(a.updated_at).getTime()
+                let tsb=new Date(b.updated_at).getTime()
                 if(tsa>tsb)return -1;
                 if(tsa<tsb)return 1;
             })
         },
         getPostIndexById(id){
             // Вернуть индекс поста по id/null
-            for(var i=0;i<this.posts.length;i++)if(this.posts[i].id===id)return i
+            for(let i=0;i<this.posts.length;i++)if(this.posts[i].id===id)return i
             return null
         },
         updatePosts(new_posts){
             // Обновить все полученные посты
-            for(var i=0;i<new_posts.length;i++){
-                var pi=this.getPostIndexById(new_posts[i].id)
+            for(let i=0;i<new_posts.length;i++){
+                let pi=this.getPostIndexById(new_posts[i].id)
                 if(null===pi){
                     this.posts.push(new_posts[i])
                 }else{
@@ -214,7 +178,7 @@ module.exports={
             this.sortPosts()
         },
         request(){
-            var options= {
+            let options= {
                 params: {
                     lastupdate: this.lastupdate,
                     curpage: this.curpage,
@@ -250,7 +214,7 @@ module.exports={
                         document.cookie='cur_url='+this.tab.type+';path=/;'
                         window.location='/html/login'
                     }else{                        
-                        // this.message={
+                        // this.f_message={
                         //     style: 'danger',
                         //     type: 'info',
                         //     text: 'Похоже что-то не получилось... Если это повторится, пожалуйста, сообщите нам, мы обязательно поможем!'
@@ -290,74 +254,13 @@ module.exports={
         window.addEventListener('scroll',this.onWindowScroll)
         this.request()
     },
-    computed:{
-        is_subscribed(){
-            if(!this.subscribes)return false
-            const tab_author_id=this.tab.id
-            for(let i=0;i<this.subscribes.length;i++){
-                if(this.subscribes[i].id===tab_author_id)return true
-            }
-            return false
-        },
-        cansubscribe(){
-            // console.dir(this.subscribes)
-            // console.dir(this.posts)
-            if(!this.subscribes || !this.posts || !this.posts[0])return false
-            let auth_id=this.posts[0].user_id
-            for(let i=0;i<this.subscribes.length;i++){
-                if(this.subscribes[i].id===auth_id)return false
-            }
-            return true
-        },
-        canedit: function(){
-            return this.tab.canadd && !this.adding_mode
-        }
-    },
     components: {
-        adder,
         addmessage,
         flashmessage,
-        post
+        message
     }
 }    
 </script>
 
 <style>
-.my-pannel{
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin: 4px 0 0 0;
-}
-.user-name{
-    display: flex;
-    font-size: 20px;
-    color: #8600D7;
-}
-.tab-title{
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin: 4px 0;
-}
-.tab-title .avatar,
-.tab-title .user-name{
-    cursor: default;
-}
-.user-title{
-    display: flex;
-    align-items: center;
-}
-.subscribe-button{
-    font-size: 18px;
-    padding: 4px 8px;
-    font-weight: bold;
-    color: #3b3;
-    border: 2px solid #3b3;
-    cursor: pointer;
-}
-.subscribe-text{
-    color: #8600D7;
-    font-style: italic;
-}
 </style>
