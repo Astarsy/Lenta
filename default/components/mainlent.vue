@@ -22,9 +22,15 @@
             <span v-if="user"
                 class="button ok"
                 @click="onMessage">Написать сообщение</span>
+
             <span v-if="cansubscribe" class="subscribe-button"
                 @click="onSubscribe">Подписаться</span>
             <span v-if="is_subscribed" class="subscribe-text">Вы подписаны</span>
+
+            <span v-if="canfriend" class="subscribe-button"
+                @click="onFriend">Подружиться</span>
+            <span v-if="is_friend" class="subscribe-text">Друг</span>
+
         </div>
 
         <addmessage v-if="adding_mode=='message'"
@@ -77,6 +83,10 @@ module.exports={
         subscribes:{
             type: Array,
             default: null
+        },
+        friends:{
+            type: Array,
+            default: null
         }
     },
     methods: {
@@ -94,6 +104,9 @@ module.exports={
         },
         onSubscribe(){
             this.$emit('subscribe',this.posts[0].user_id)
+        },
+        onFriend(){
+            this.$emit('friend',this.posts[0].user_id)
         },
         onPostUserClick(user){
             this.$emit('open-user-lent',user)
@@ -198,7 +211,7 @@ module.exports={
         },
         getPostIndexById(id){
             // Вернуть индекс поста по id/null
-            for(var i=0;i<this.posts.length;i++)if(this.posts[i].id===id)return i
+            for(var i=0;i<this.posts.length;i++)if(this.posts[i].id==id)return i
             return null
         },
         updatePosts(new_posts){
@@ -299,13 +312,29 @@ module.exports={
             }
             return false
         },
+        is_friend(){
+            if(!this.friends)return false
+            const tab_friend_id=this.tab.id
+            for(let i=0;i<this.friends.length;i++){
+                if(this.friends[i].id===tab_friend_id)return true
+            }
+            return false
+        },
         cansubscribe(){
-            // console.dir(this.subscribes)
-            // console.dir(this.posts)
             if(!this.subscribes || !this.posts || !this.posts[0])return false
             let auth_id=this.posts[0].user_id
             for(let i=0;i<this.subscribes.length;i++){
                 if(this.subscribes[i].id===auth_id)return false
+            }
+            return true
+        },
+        canfriend(){
+            // console.dir(this.subscribes)
+            // console.dir(this.posts)
+            if(!this.friends || !this.posts || !this.posts[0])return false
+            let friend_id=this.posts[0].user_id
+            for(let i=0;i<this.friends.length;i++){
+                if(this.friends[i].id===friend_id)return false
             }
             return true
         },

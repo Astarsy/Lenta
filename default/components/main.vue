@@ -2,10 +2,11 @@
     <div class="ldb">
 
         <flashmessage
-            v-if="message"
+            v-if="flash_message"
             :parent="this"
             :message="flash_message"
-            @close="onMsgClosed"></flashmessage>
+            @ok="flash_message=null"
+            @close="flash_message=null"></flashmessage>
 
         <div class="l-panel">
             <div class="tabs">
@@ -46,7 +47,9 @@
             ref="curcomp"
             :tab="current"
             :subscribes="subscribes"
+            :friends="user_friends"
             @open-user-lent="onOpenUserLent"
+            @friend="onFriend"
             @subscribe="onSubscribe"></component>
         </keep-alive>
 
@@ -68,10 +71,18 @@
                 </keep-alive>
 
                 <keep-alive>
-                    <friends v-if="friends"
-                        :data="friends"
+                    <friends v-if="user_friends"
+                        :data="user_friends"
                         @open="onUserTabOpen"
                         @unscribe="onUnfriend"></friends>
+                </keep-alive>
+
+                <keep-alive>
+                    <askfriends v-if="user_askfriends"
+                        :data="user_askfriends"
+                        @open="onUserTabOpen"
+                        @yes="onAskFriendsYes"
+                        @no="onAskFriendsNo"></askfriends>
                 </keep-alive>
             </div>
         </div>
@@ -84,6 +95,7 @@ let mainlent=require('./mainlent.vue')
 let messageslent=require('./messageslent.vue')
 let subscribes=require('./subscribes.vue')
 let friends=require('./friends.vue')
+let askfriends=require('./askfriends.vue')
 let flashmessage=require('./flashmessage.vue')
 let userbar=require('./userbar.vue')
 
@@ -97,7 +109,8 @@ module.exports = {
             current: null,
             user: null,
             subscribes: null,
-            friends: null,
+            user_friends: null,
+            user_askfriends: null,
             refreshTimerId: null,
             curcomp: 'mainlent',
             adding_mode: false,
@@ -107,6 +120,39 @@ module.exports = {
     props: {
     },
     methods: {
+        onAskFriendsYes(item){
+            // Нажата кнопка Согласиться дружить - отправить запрос,
+            // оптимистик: добавить полученные в ответе данные п-ля в Friends
+            this.request(this.user_askfriends,item,'yesfriend')
+            this.user_friends.push(item)
+        },
+        onAskFriendsNo(item){
+            // Нажата кнопка Отказаться дружить - отправить запрос,
+            // оптимистик
+            this.request(this.user_askfriends,item,'nofriend')
+        },
+        onFriend(uid){
+            // Нажата кнопка Подружиться - отправить запрос на Дружбу,
+            // оптимистик: добавить полученные в ответе данные п-ля в Friends
+            let data=new FormData()
+            data.append('uid',uid);
+            this.$http.post(window.location.origin+"/api/wantfriend",data).then(function(responce){
+// console.dir(responce.body)
+                    this.flash_message={
+                        style: 'ok',
+                        type: 'info',
+                        text: "Предложение дружбы отправлено"
+                    }
+                },
+                function(responce){
+// console.dir(responce.body)
+                    this.flash_message={
+                        style: 'danger',
+                        type: 'info',
+                        text: "Не удалось отправить..."
+                    }
+                })
+        },
         onSubscribe(uid){
             // Нажата кнопка Подписаться - отправить запрос на Подписку,
             // оптимистик: добавить полученные в ответе данные п-ля в Subscribes
@@ -134,15 +180,15 @@ module.exports = {
         onUnscribe(item){
             // Нажата кнопка Отписаться - отаравить запрос на отписку,
             // оптимистик: удалить Вкладку п-ля, Subscribes
-            this.remove(this.subscribes,item,'unscribe')
+            this.request(this.subscribes,item,'unscribe')
         },
         onUnfriend(item){
             // Нажата кнопка Не Дружить - отаравить запрос,
             // оптимистик: удалить Вкладку п-ля, Subscribes
-            this.remove(this.friends,item,'unfriend')
+            this.request(this.user_friends,item,'unfriend')
         },
-        remove(items,item,method){
-            // послать запрос на удаление и обновить данные
+        request(items,item,method){
+            // послать запрос и обновить данные инкрементом
             let data=new FormData()
             data.append('id',item.id);
             this.$http.post(window.location.origin+"/api/"+method,data).then(function(responce){
@@ -199,6 +245,7 @@ module.exports = {
             this.current=new_tab
         },
         getItemById(arr,id){
+            if(!arr)return null
             for(let i=0;i<arr.length;i++){
                 if(arr[i].id===id)return arr[i]
             }
@@ -237,7 +284,9 @@ module.exports = {
         let d=this.getStartData()
         if(d.user)this.user=d.user
         if(d.subscribes)this.subscribes=d.subscribes
-        if(d.friends)this.friends=d.friends
+        if(d.friends)this.user_friends=d.friends
+        if(d.askfriends)this.user_askfriends=d.askfriends
+        console.dir(d)
         this.tabs=d.tabs
         this.timeout=d.timeout
         let cu=this.$root.getCoockie('cur_url')
@@ -253,6 +302,7 @@ module.exports = {
         messageslent,
         subscribes,
         friends,
+        askfriends,
         flashmessage,
         userbar,
 //        addmessage
@@ -327,6 +377,9 @@ body{
     display: flex;
     flex-flow: column;
 }
+.r-tabs>*:not(:last-child){
+    margin-bottom: 20px;
+}
 .ldb .r-panel{
     flex-flow: column;
 }
@@ -384,6 +437,20 @@ a.button{
 }
 .button:not(.disabled):hover{
     box-shadow: 0 0 2px #888;
+}
+.mini-btn{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid;
+    border-radius: 6px;
+}
+.mini-btn.ok{
+    padding: 2px 6px 4px 6px;
+}
+.mini-btn.cancel{
+    padding: 0 6px 2px 6px;
+    border-radius: 60px;
 }
 
 .tab{
@@ -445,5 +512,26 @@ a.button{
 .user-ava-name{
     display: flex;
     align-items: center;
+}
+
+.user-ava-name{
+    cursor: pointer;
+}
+.user-ava-name>*:not(:last-child){
+    margin-right: 8px;
+}
+.user-ava-name>img{
+    width: 40px;
+    height: 40px;
+    border-radius: 100px;
+}
+.user-ava-name .name{
+    color: #315355;
+    font-size: 20px;
+}
+.user-ava-name .count{
+    color: #888;
+    font-size: 14px;
+    padding-bottom: 1em;
 }
 </style>

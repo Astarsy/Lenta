@@ -10,46 +10,44 @@
             @ok="onConfirmPostDel"
             @close="onFlashMessageClosed"></flashmessage>
 
-        <div class="post-title"
-            :class="{ 'status-new' : data.status=='new' }">
+        <div v-if="user.id!=data.user_id"
+             class="msg-title"
+             :class="{ 'status-new' : data.status=='new' }">
 
-            <span v-if="user.id!=data.user_id">
-                <span>From</span>
-                <span class="user-ava-name">
+            <span class="receive ok" title="Получено">✉</span>
+            <span class="user-ava-name">
                 <img draggable="false" class="avatar"
                      :src="'/img/avatars/'+avatar"
                      @click="onUserClick({id:data.user_id,name:data.user_name,avatar:data.user_avatar})">
 
-                    <span class="user-name"
-                        @click="onUserClick({id:data.user_id,name:data.user_name,avatar:data.user_avatar})">{{ data.user_name }}</span>
-                </span>
+                <span class="user-name"
+                    @click="onUserClick({id:data.user_id,name:data.user_name,avatar:data.user_avatar})">{{ data.user_name }}</span>
             </span>
+            <span>{{ data.updated_at | date }}</span>
+            <span v-if="user.id!=data.user_id"
+                  class="button ok send-msg"
+                  @click="$emit('answer-for-message',data)"
+                  title="Написать">📩</span>
+        </div>
 
-            <span v-else>
-                <span>To</span>
-                <span class="user-ava-name">
-                    <img draggable="false" class="avatar"
-                         :src="'/img/avatars/'+to_user_avatar"
-                         @click="onUserClick({id:data.to_user_id,name:data.to_user_name,avatar:data.to_user_avatar})">
+        <div v-else
+             class="msg-title"
+             :class="{ 'status-new' : data.status=='new' }">
 
-                    <span class="user-name"
-                          @click="onUserClick({id:data.to_user_id,name:data.to_user_name,avatar:data.to_user_avatar})">{{ data.to_user_name }}</span>
-                </span>
+            <span class="sent" title="Отправлено">📨</span>
+            <span class="user-ava-name">
+                <img draggable="false" class="avatar"
+                     :src="'/img/avatars/'+to_user_avatar"
+                     @click="onUserClick({id:data.to_user_id,name:data.to_user_name,avatar:data.to_user_avatar})">
 
+                <span class="user-name"
+                      @click="onUserClick({id:data.to_user_id,name:data.to_user_name,avatar:data.to_user_avatar})">{{ data.to_user_name }}</span>
             </span>
-            <span>
-                <span>{{ data.updated_at | date }}</span>
-
-                <span v-if="user.id!=data.user_id"
-                      class="button ok send-msg"
-                      @click="$emit('answer-for-message',data)">Ответить</span>
-
-                <span v-if="data.access" class="access" title="Приватная публикация">Приватная</span>
-            </span>
-
+            <span>{{ data.updated_at | date }}</span>
+            <span v-if="data.access" class="access" title="Приватная публикация">Приватная</span>
             <div v-if="user.id==data.user_id"
-                 class="edit"
-                 title="Редактировать публикацю"
+                 class="button edit"
+                 title="Редактировать сообщение"
                  @click="$emit('edit')">✎</div>
 
         </div>
@@ -151,21 +149,44 @@ module.exports = {
 </script>
 
 <style>
-    .send-msg{
-        margin-left: 20px;
-    }
     .msg{
         display: flex;
         flex-flow: column;
         border: 1px solid #eee;
         margin: 4px 0;
-        min-width: 60%;
-        max-width: 90%;
+        width: 90%;
+        cursor: default;
     }
     .msg.selfmsg{
         align-self: flex-start;
     }
     .msg:not(.selfmsg){
         align-self: flex-end;
+    }
+
+    .msg-title{
+        display: flex;
+        align-items: center;
+        margin: 4px;
+        cursor: default;
+    }
+    .msg-title>*:not(:last-child){
+        margin-right: 20px;
+    }
+
+    .msg .receive,
+    .msg .send-msg,
+    .msg .edit,
+    .msg .sent{
+        font-size: 22px;
+        font-weight: bold;
+    }
+    .msg .edit,
+    .msg .sent{
+        color: #3286ff;
+        border-color: #3286ff;
+    }
+    .msg .edit{
+        transform: scaleX(-1);
     }
 </style>

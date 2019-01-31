@@ -50,7 +50,6 @@ module.exports = {
     flex-flow: column;
     justify-content: center;
     align-items: center;
-    margin-bottom: 12px;
     padding-bottom: 4px;
     background-color: #fff;
     cursor: pointer;

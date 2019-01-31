@@ -152,17 +152,27 @@ module.exports={
             if(null!==pi)this.$set(this.posts,pi,post)
         },
         sortPosts(){
-            // Упорядочить посты
+            // Упорядочить посты:
+            // - по дате
             this.posts.sort(function(a,b){
                 let tsa=new Date(a.updated_at).getTime()
                 let tsb=new Date(b.updated_at).getTime()
                 if(tsa>tsb)return -1;
                 if(tsa<tsb)return 1;
             })
+            // - правильно разместить дочерние посты
+//            for(let i=0;i<this.posts.length;i++){
+//                let post=this.posts[i]
+//                if(!post.for_message_id)continue
+//                let parent_index=this.getPostIndexById(post.for_message_id)
+//                if(null===parent_index)continue
+//                let cur_index=this.getPostIndexById(post.id)
+//                console.log(cur_index+' parent is '+parent_index)
+//            }
         },
         getPostIndexById(id){
             // Вернуть индекс поста по id/null
-            for(let i=0;i<this.posts.length;i++)if(this.posts[i].id===id)return i
+            for(let i=0;i<this.posts.length;i++)if(this.posts[i].id==id)return i
             return null
         },
         updatePosts(new_posts){
@@ -189,14 +199,14 @@ module.exports={
             this.$http.get(window.location.origin+"/api/"+this.tab.type,options).then(function(responce){                
 
 // console.log('last update '+this.lastupdate)
- //console.dir(responce.body.posts)
+// console.dir(responce.body)
 
                     if(responce.body==='Ok'){
                         this.wait_scroll_update_time=Date.now()
                         //console.log('Ok')
                         return
                     }
-                    this.wait_scroll_update_time=0
+//                    this.wait_scroll_update_time=0
                     if (!responce.body.posts){
                         this.posts.splice(0)
                         return
